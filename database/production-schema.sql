@@ -1,9 +1,6 @@
 -- KREATIV DENTAL PLUS PRODUCTION DATABASE SCHEMA
 -- This is the complete, production-ready schema for the dental management system
 
--- Enable Row Level Security
-ALTER database SET row_security = on;
-
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -253,10 +250,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- Insert REAL STAFF DATA based on your team
--- Note: You'll need to create auth.users entries first, then link them here
-
--- Insert default services
+-- Insert default services with Philippine pricing
 INSERT INTO public.services (name, description, price, duration, category) VALUES
 ('Dental Cleaning', 'Regular dental cleaning and checkup', 1500.00, 60, 'Preventive'),
 ('Oral Prophylaxis - Simple', 'Basic oral prophylaxis', 1500.00, 45, 'Preventive'),
