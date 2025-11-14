@@ -20,43 +20,7 @@ export interface Appointment {
 }
 
 // Mock data store
-let appointments: Appointment[] = [
-  {
-    id: "1",
-    appointmentNumber: "APT-2024-001",
-    patientId: "1",
-    patientName: "Juan Dela Cruz",
-    dentistId: "DENT002",
-    dentistName: "Dr. Jerome Oh",
-    roomNumber: 1,
-    date: "2024-11-16",
-    time: "09:00",
-    duration: 30,
-    services: ["Oral Prophylaxis"],
-    insuranceType: "Maxicare",
-    status: "confirmed",
-    notes: "Regular checkup",
-    createdAt: "2024-11-10T00:00:00Z",
-    updatedAt: "2024-11-10T00:00:00Z"
-  },
-  {
-    id: "2",
-    appointmentNumber: "APT-2024-002",
-    patientId: "2",
-    patientName: "Maria Santos",
-    dentistId: "DENT005",
-    dentistName: "Dra. Fevi Stella Torralba-Pio",
-    roomNumber: 2,
-    date: "2024-11-16",
-    time: "10:00",
-    duration: 45,
-    services: ["Restoration"],
-    insuranceType: "Private",
-    status: "scheduled",
-    createdAt: "2024-11-11T00:00:00Z",
-    updatedAt: "2024-11-11T00:00:00Z"
-  }
-];
+let appointments: Appointment[] = [];
 
 // CREATE
 export function createAppointment(appointmentData: Omit<Appointment, "id" | "appointmentNumber" | "createdAt" | "updatedAt">): Appointment {

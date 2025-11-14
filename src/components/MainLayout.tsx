@@ -17,7 +17,7 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { AppointmentPage } from "./AppointmentPage";
+import { EnhancedAppointmentPage } from "./EnhancedAppointmentPage";
 import { DentistsPage } from "./DentistsPage";
 import { KreativPayrollPage } from "./KreativPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
@@ -237,7 +237,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "receptionist" && <ReceptionistDashboard currentUser={currentUser} />}
             </>
           )}
-          {activeTab === "appointment" && <AppointmentPage />}
+          {activeTab === "appointment" && <EnhancedAppointmentPage currentUser={currentUser} />}
           {activeTab === "dentists" && <DentistsPage />}
           {activeTab === "patient-record" && <PatientRecordPage />}
           {activeTab === "financial" && <FinancialPage />}

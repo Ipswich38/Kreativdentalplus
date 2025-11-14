@@ -24,56 +24,7 @@ export interface Patient {
 }
 
 // Mock data store (in production, this would be a database)
-let patients: Patient[] = [
-  {
-    id: "1",
-    patientNumber: "PT-2024-001",
-    firstName: "Juan",
-    lastName: "Dela Cruz",
-    birthDate: "1990-01-15",
-    age: 34,
-    gender: "Male",
-    phone: "+63 917-123-4567",
-    email: "juan.delacruz@email.com",
-    address: "123 Rizal Street",
-    city: "Manila",
-    province: "Metro Manila",
-    medicalHistory: "Hypertension (Controlled)",
-    allergies: "Penicillin",
-    medications: "None",
-    insuranceType: "Maxicare",
-    insuranceProvider: "Maxicare",
-    insuranceCardNumber: "MAX-2024-12345",
-    status: "active",
-    lastVisit: "2024-10-10",
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-10-10T00:00:00Z"
-  },
-  {
-    id: "2",
-    patientNumber: "PT-2024-002",
-    firstName: "Maria",
-    lastName: "Santos",
-    birthDate: "1985-05-20",
-    age: 39,
-    gender: "Female",
-    phone: "+63 923-456-7890",
-    email: "maria.santos@email.com",
-    address: "456 Bonifacio Avenue",
-    city: "Quezon City",
-    province: "Metro Manila",
-    medicalHistory: "None",
-    allergies: "None",
-    medications: "None",
-    insuranceType: "Private",
-    insuranceProvider: "",
-    insuranceCardNumber: "",
-    status: "active",
-    lastVisit: "2024-11-01",
-    createdAt: "2024-02-01T00:00:00Z",
-    updatedAt: "2024-11-01T00:00:00Z"
-  }
-];
+let patients: Patient[] = [];
 
 // CREATE
 export function createPatient(patientData: Omit<Patient, "id" | "patientNumber" | "createdAt" | "updatedAt">): Patient {

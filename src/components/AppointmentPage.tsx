@@ -49,84 +49,8 @@ interface Appointment {
   notes?: string;
 }
 
-// Mock appointments data
-const mockAppointments: Appointment[] = [
-  {
-    id: "1",
-    patientName: "John Smith",
-    patientEmail: "john@example.com",
-    patientPhone: "+1 234-567-8900",
-    dentist: "DRA. CAMILA CAÑARES-PRICE",
-    service: "Regular Checkup",
-    date: new Date(2025, 10, 14),
-    time: "09:00 AM",
-    duration: "30 min",
-    status: "confirmed",
-    notes: "First visit"
-  },
-  {
-    id: "2",
-    patientName: "Emma Wilson",
-    patientEmail: "emma@example.com",
-    patientPhone: "+1 234-567-8901",
-    dentist: "DR. JEROME OH",
-    service: "Teeth Cleaning",
-    date: new Date(2025, 10, 14),
-    time: "10:30 AM",
-    duration: "45 min",
-    status: "scheduled"
-  },
-  {
-    id: "3",
-    patientName: "Robert Brown",
-    patientEmail: "robert@example.com",
-    patientPhone: "+1 234-567-8902",
-    dentist: "DRA. FATIMA PORCIUNCULA",
-    service: "Root Canal",
-    date: new Date(2025, 10, 14),
-    time: "02:00 PM",
-    duration: "90 min",
-    status: "confirmed"
-  },
-  {
-    id: "4",
-    patientName: "Lisa Anderson",
-    patientEmail: "lisa@example.com",
-    patientPhone: "+1 234-567-8903",
-    dentist: "DR. FELIPE SUPILANA",
-    service: "Dental Filling",
-    date: new Date(2025, 10, 15),
-    time: "11:00 AM",
-    duration: "60 min",
-    status: "scheduled"
-  },
-  {
-    id: "5",
-    patientName: "David Martinez",
-    patientEmail: "david@example.com",
-    patientPhone: "+1 234-567-8904",
-    dentist: "DRA. CLENCY",
-    service: "Teeth Whitening",
-    date: new Date(2025, 10, 14),
-    time: "09:00 AM",
-    duration: "60 min",
-    status: "scheduled",
-    notes: "Double booking - concurrent appointment"
-  },
-  {
-    id: "6",
-    patientName: "Sarah Thompson",
-    patientEmail: "sarah@example.com",
-    patientPhone: "+1 234-567-8905",
-    dentist: "DRA. SHIRLEY BAYOG",
-    service: "Emergency Consultation",
-    date: new Date(2025, 10, 14),
-    time: "02:00 PM",
-    duration: "30 min",
-    status: "confirmed",
-    notes: "Double booking - urgent case"
-  },
-];
+// Production ready - no mock data
+const mockAppointments: Appointment[] = [];
 
 export function AppointmentPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
