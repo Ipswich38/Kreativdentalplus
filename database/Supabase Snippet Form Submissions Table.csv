@@ -1,0 +1,99 @@
+table_name,column_name,data_type
+appointments,id,uuid
+appointments,appointment_number,text
+appointments,patient_id,uuid
+appointments,dentist_id,uuid
+appointments,service_id,uuid
+appointments,appointment_date,date
+appointments,appointment_time,time without time zone
+appointments,end_time,time without time zone
+appointments,room_number,integer
+appointments,status,text
+appointments,notes,text
+appointments,created_at,timestamp with time zone
+appointments,updated_at,timestamp with time zone
+clinic_expenses,id,uuid
+clinic_expenses,expense_number,text
+clinic_expenses,category,text
+clinic_expenses,description,text
+clinic_expenses,amount,numeric
+clinic_expenses,expense_date,date
+clinic_expenses,vendor,text
+clinic_expenses,receipt_number,text
+clinic_expenses,notes,text
+clinic_expenses,created_at,timestamp with time zone
+clinic_expenses,updated_at,timestamp with time zone
+dentists,id,uuid
+dentists,name,text
+dentists,specialization,text
+dentists,commission_rates,jsonb
+dentists,created_at,timestamp with time zone
+dentists,updated_at,timestamp with time zone
+kv_store_aed69b82,key,text
+kv_store_aed69b82,value,jsonb
+patients,id,uuid
+patients,patient_number,text
+patients,first_name,text
+patients,last_name,text
+patients,date_of_birth,date
+patients,phone,text
+patients,email,text
+patients,address,text
+patients,emergency_contact_name,text
+patients,emergency_contact_phone,text
+patients,medical_conditions,text
+patients,allergies,text
+patients,insurance_provider,text
+patients,insurance_number,text
+patients,created_at,timestamp with time zone
+patients,updated_at,timestamp with time zone
+payments,id,uuid
+payments,payment_number,text
+payments,patient_id,uuid
+payments,appointment_id,uuid
+payments,amount,numeric
+payments,payment_method,text
+payments,payment_status,text
+payments,transaction_reference,text
+payments,notes,text
+payments,paid_at,timestamp with time zone
+payments,created_at,timestamp with time zone
+services,id,uuid
+services,service_name,text
+services,base_rate,numeric
+services,category,text
+services,created_at,timestamp with time zone
+services,updated_at,timestamp with time zone
+staff_users,id,uuid
+staff_users,employee_number,text
+staff_users,full_name,text
+staff_users,email,text
+staff_users,passcode,text
+staff_users,role,USER-DEFINED
+staff_users,position,text
+staff_users,specialization,text
+staff_users,is_dentist,boolean
+staff_users,is_owner,boolean
+staff_users,is_admin,boolean
+staff_users,permissions,jsonb
+staff_users,salary,numeric
+staff_users,commission_rates,jsonb
+staff_users,is_active,boolean
+staff_users,passcode_expires_at,timestamp with time zone
+staff_users,can_change_passcode,boolean
+staff_users,passcode_reset_required,boolean
+staff_users,last_passcode_change,timestamp with time zone
+staff_users,created_at,timestamp with time zone
+staff_users,updated_at,timestamp with time zone
+submissions,id,text
+submissions,type,text
+submissions,name,text
+submissions,email,text
+submissions,phone,text
+submissions,cellphone,text
+submissions,message,text
+submissions,service,text
+submissions,date,text
+submissions,timestamp,text
+submissions,read,boolean
+submissions,created_at,timestamp with time zone
