@@ -15,25 +15,29 @@
 
 ---
 
-## Dentists Access
+## Dentists Access (8 Total)
 
 | Employee ID | Name | Specialty | Passcode | Notes |
 |------------|------|-----------|----------|-------|
 | **DEN-001** | DRA. CAMILA CAÑARES-PRICE | Owner & Founder | **200001** | Full access to all dental features |
-| **DEN-002** | DR. JEROME OH | Endodontics Specialist | **200002** | Personal dashboard + appointments |
-| **DEN-003** | DR. MARIA SANTOS | Orthodontics | **200003** | Personal dashboard + appointments |
+| **DEN-002** | DR. JEROME OH | Oral Surgeon | **200002** | Personal dashboard + appointments |
+| **DEN-003** | DRA. CLENCY | Pediatric Dentistry | **200003** | Personal dashboard + appointments |
+| **DEN-004** | DRA. FATIMA PORCIUNCULA | Orthodontics | **200004** | Personal dashboard + appointments |
+| **DEN-005** | DRA. FEVI STELLA TORRALBA-PIO | General Dentistry | **200005** | Personal dashboard + appointments |
+| **DEN-006** | DR. JONATHAN PINEDA | TMJ Specialist | **200006** | Personal dashboard + appointments |
+| **DEN-007** | DR. FELIPE SUPILANA | Implant Specialist | **200007** | Personal dashboard + appointments |
+| **DEN-008** | DRA. SHIRLEY BAYOG | Cosmetic Dentistry | **200008** | Personal dashboard + appointments |
 
 ---
 
-## Staff Access
+## Staff Access (4 Total)
 
 | Employee ID | Name | Position | Passcode | Notes |
 |------------|------|----------|----------|-------|
 | **STF-001** | MS. JEZEL ROCHE | Front-Desk Staff | **300001** | Limited dashboard access |
-| **STF-002** | MS. MHAY BLANQUEZA | Dental Assistant | **300002** | Personal payroll view |
-| **STF-003** | MS. ANDREA VILLAR | Treatment Coordinator | **300003** | Personal payroll view |
-| **STF-004** | MS. ANGEL KAYE SARMIENTO | Dental Assistant | **300004** | Personal payroll view |
-| **STF-005** | MR. JAMES RIVERA | Dental Hygienist | **300005** | Personal payroll view |
+| **STF-002** | MS. MHAY BLANQUEZA | Dental Assistant, Treatment Coordinator | **300002** | Personal payroll view |
+| **STF-003** | MS. EDNA TATIMO | Lead Dental Assistant | **300003** | Personal payroll view |
+| **STF-004** | MICH BLASCO | Admin, Editor | **300004** | Personal payroll view |
 
 ---
 
@@ -59,7 +63,7 @@
 - ✅ Inventory Management
 - ✅ Settings & Configuration
 
-### Dentists (DEN-001 to DEN-003)
+### Dentists (DEN-001 to DEN-008)
 - ✅ Personal Dashboard (their appointments, patients, earnings)
 - ✅ Their Appointments only
 - ✅ Their Patient Records
@@ -70,7 +74,7 @@
 - ❌ Staff management
 - ❌ System settings
 
-### Staff (STF-001 to STF-005)
+### Staff (STF-001 to STF-004)
 - ✅ Personal Dashboard (their tasks, attendance)
 - ✅ Appointments (view only, assisting tasks)
 - ✅ Patient Records (view only)
@@ -91,6 +95,16 @@
 - ❌ Dentist management
 - ❌ Staff management
 - ❌ Inventory
+
+---
+
+## Complete Credentials Summary
+
+**Total: 14 Accounts**
+- 1 Admin Account
+- 8 Dentist Accounts
+- 4 Staff Accounts
+- 1 Receptionist Account
 
 ---
 
