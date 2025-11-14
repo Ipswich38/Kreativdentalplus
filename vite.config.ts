@@ -52,6 +52,17 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            ui: ['@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs'],
+            charts: ['recharts'],
+            utils: ['class-variance-authority', 'clsx', 'tailwind-merge']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 600
     },
     server: {
       port: 3000,
