@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Separator } from "./ui/separator";
 import { Calculator, Users, DollarSign, FileSpreadsheet, Download, Plus, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from '../lib/supabase';
 import type { User } from "../data/users";
 
 interface PayrollRecord {
@@ -118,7 +118,20 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Payroll query error:', error);
+        if (error.message.includes('relation "payroll" does not exist')) {
+          toast.error('Payroll table not found. Please contact IT administrator to set up the database.');
+          setPayrollRecords([]);
+          return;
+        }
+        if (error.message.includes('column') && error.message.includes('does not exist')) {
+          toast.error('Payroll table structure needs updating. Please contact IT administrator.');
+          setPayrollRecords([]);
+          return;
+        }
+        throw error;
+      }
 
       const processedData = (data || []).map(record => ({
         ...record,
@@ -129,7 +142,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       setPayrollRecords(processedData);
     } catch (error: any) {
       console.error('Error fetching payroll:', error);
-      toast.error('Failed to load payroll records');
+      toast.error('Failed to load payroll records. Database may need setup.');
     } finally {
       setLoading(false);
     }
@@ -155,7 +168,20 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
 
       const { data: attendanceData, error: attendanceError } = await attendanceQuery;
 
-      if (attendanceError) throw attendanceError;
+      if (attendanceError) {
+        console.error('Attendance query error:', attendanceError);
+        if (attendanceError.message.includes('relation "attendance" does not exist')) {
+          toast.error('Attendance table not found. Please contact IT administrator to set up the database.');
+          setAttendanceSummary([]);
+          return;
+        }
+        if (attendanceError.message.includes('column') && attendanceError.message.includes('does not exist')) {
+          toast.error('Attendance table structure needs updating. Please contact IT administrator.');
+          setAttendanceSummary([]);
+          return;
+        }
+        throw attendanceError;
+      }
 
       // Group by staff and calculate totals
       const staffSummary: Record<string, AttendanceSummary> = {};

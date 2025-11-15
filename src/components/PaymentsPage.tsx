@@ -124,37 +124,29 @@ export function PaymentsPage({ currentUser }: PaymentsPageProps) {
   const loadPayments = async () => {
     try {
       setLoading(true);
-      // Mock data for now - in production, load from payments table
-      const mockPayments: Payment[] = [
-        {
-          id: '1',
-          payment_number: 'PAY001',
-          appointment_id: 'apt_123',
-          patient_id: 'pat_456',
-          amount: 3500,
-          payment_method: 'cash',
-          status: 'completed',
-          processed_by: currentUser.employeeId,
-          created_at: new Date().toISOString(),
-          appointments: {
-            appointment_date: '2024-11-15',
-            appointment_time: '10:00',
-            status: 'completed',
-            patients: {
-              first_name: 'Maria',
-              last_name: 'Santos',
-              phone: '+639123456789'
-            },
-            staff_users: {
-              full_name: 'Dr. Jerome Oh',
-              specialization: 'Endodontics'
-            }
-          }
-        }
-      ];
-      setPayments(mockPayments);
+      const { data, error } = await supabase
+        .from('payments')
+        .select(`
+          *,
+          appointments(
+            appointment_date,
+            appointment_time,
+            status,
+            patients(first_name, last_name, phone),
+            staff_users(full_name, specialization)
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading payments:', error);
+        setPayments([]);
+      } else {
+        setPayments(data || []);
+      }
     } catch (error) {
       console.error('Error loading payments:', error);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -162,33 +154,43 @@ export function PaymentsPage({ currentUser }: PaymentsPageProps) {
 
   const loadAwaitingPayments = async () => {
     try {
-      // Mock data for appointments awaiting payment
-      const mockAwaiting: AwaitingPayment[] = [
-        {
-          id: '1',
-          appointment_number: 'APT001',
-          appointment_date: '2024-11-15',
-          appointment_time: '09:00',
-          patient_name: 'John Doe',
-          dentist_name: 'Dr. Jerome Oh',
-          service_amount: 2500,
-          status: 'awaiting_payment',
-          assist_staff: 'Ms. Jezel Roche'
-        },
-        {
-          id: '2',
-          appointment_number: 'APT002',
-          appointment_date: '2024-11-15',
-          appointment_time: '10:30',
-          patient_name: 'Jane Smith',
-          dentist_name: 'Dra. Clency',
-          service_amount: 1500,
-          status: 'awaiting_payment'
-        }
-      ];
-      setAwaitingPayments(mockAwaiting);
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+          id,
+          appointment_number,
+          appointment_date,
+          appointment_time,
+          total_amount,
+          patient_status,
+          assigned_staff,
+          patients(first_name, last_name),
+          staff_users(full_name)
+        `)
+        .eq('patient_status', 'awaiting_payment')
+        .order('appointment_date')
+        .order('appointment_time');
+
+      if (error) {
+        console.error('Error loading awaiting payments:', error);
+        setAwaitingPayments([]);
+      } else {
+        const formattedData = (data || []).map(apt => ({
+          id: apt.id,
+          appointment_number: apt.appointment_number,
+          appointment_date: apt.appointment_date,
+          appointment_time: apt.appointment_time,
+          patient_name: apt.patients ? `${apt.patients.first_name} ${apt.patients.last_name}` : 'Unknown',
+          dentist_name: apt.staff_users?.full_name || 'Unknown',
+          service_amount: apt.total_amount || 0,
+          status: apt.patient_status,
+          assist_staff: apt.assigned_staff
+        }));
+        setAwaitingPayments(formattedData);
+      }
     } catch (error) {
       console.error('Error loading awaiting payments:', error);
+      setAwaitingPayments([]);
     }
   };
 
