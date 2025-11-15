@@ -12,7 +12,7 @@
 
 | Employee Number | Name | Role | Passcode | Position |
 |----------------|------|------|----------|----------|
-| **OWN-001** | Dr. Camila Cañares-Price | Admin | **123456** | Owner & Clinical Director |
+| **OWN001** | Dr. Camila Cañares-Price | Admin | **123456** | Owner & Clinical Director |
 
 **Full Access**: All modules, financial data, staff management, system settings
 
@@ -22,14 +22,14 @@
 
 | Employee Number | Name | Specialty | Passcode | Commission Rate |
 |----------------|------|-----------|----------|-----------------|
-| **DEN-001** | Dr. Jerome Oh | Endodontics | **234567** | 35% |
-| **DEN-002** | Dr. Maria Santos | Orthodontics | **345678** | 35% |
-| **DEN-003** | Dr. Carlos Rodriguez | Oral Surgery | **456789** | 40% |
-| **DEN-004** | Dr. Patricia Lim | Pediatric Dentistry | **567890** | 35% |
-| **DEN-005** | Dr. Michael Chen | Prosthodontics | **678901** | 38% |
-| **DEN-006** | Dr. Sarah Johnson | General Dentistry | **789012** | 32% |
-| **DEN-007** | Dr. Robert Kim | Periodontics | **890123** | 36% |
-| **DEN-008** | Dr. Elena Martinez | Cosmetic Dentistry | **901234** | 35% |
+| **DEN001** | Dr. Jerome Oh | Endodontics | **234567** | 35% |
+| **DEN002** | Dr. Maria Santos | Orthodontics | **345678** | 35% |
+| **DEN003** | Dr. Carlos Rodriguez | Oral Surgery | **456789** | 40% |
+| **DEN004** | Dr. Patricia Lim | Pediatric Dentistry | **567890** | 35% |
+| **DEN005** | Dr. Michael Chen | Prosthodontics | **678901** | 38% |
+| **DEN006** | Dr. Sarah Johnson | General Dentistry | **789012** | 32% |
+| **DEN007** | Dr. Robert Kim | Periodontics | **890123** | 36% |
+| **DEN008** | Dr. Elena Martinez | Cosmetic Dentistry | **901234** | 35% |
 
 **Access**: Personal dashboard, their appointments, their patients, own payroll data
 
@@ -39,9 +39,9 @@
 
 | Employee Number | Name | Position | Passcode | Hourly Rate |
 |----------------|------|----------|----------|-------------|
-| **STF-001** | Ms. Jezel Roche | Senior Dental Assistant | **111222** | ₱850/hr |
-| **STF-002** | Ms. Mhay Blanqueza | Dental Hygienist | **222333** | ₱900/hr |
-| **STF-003** | Ms. Andrea Villar | Treatment Coordinator | **333444** | ₱950/hr |
+| **STF001** | Ms. Jezel Roche | Senior Dental Assistant | **111222** | ₱850/hr |
+| **STF002** | Ms. Mhay Blanqueza | Dental Hygienist | **222333** | ₱900/hr |
+| **STF003** | Ms. Andrea Villar | Treatment Coordinator | **333444** | ₱950/hr |
 
 **Access**: Personal dashboard, view appointments, own payroll, clock in/out
 
@@ -51,7 +51,7 @@
 
 | Employee Number | Name | Position | Passcode | Hourly Rate |
 |----------------|------|----------|----------|-------------|
-| **STF-004** | Ms. Angel Kaye Sarmiento | Employee Receptionist | **444555** | ₱750/hr |
+| **STF004** | Ms. Angel Kaye Sarmiento | Employee Receptionist | **444555** | ₱750/hr |
 
 **Access**: Reception dashboard, manage appointments/patients, own payroll, clock in/out
 
@@ -61,7 +61,7 @@
 
 | Employee Number | Name | Type | Passcode | Purpose |
 |----------------|------|------|----------|---------|
-| **FD-001** | Front Desk Terminal | Shared Terminal | **999999** | Public Front Desk Use |
+| **FD001** | Front Desk Terminal | Shared Terminal | **999999** | Public Front Desk Use |
 
 **🔒 RESTRICTED ACCESS**: Complete dental management **WITHOUT payroll access**
 - ✅ Patient Management (Full Access)
@@ -137,31 +137,31 @@
 
 ### 👑 Owner Access (Full System):
 ```
-Employee Number: OWN-001
+Employee Number: OWN001
 Passcode: 123456
 ```
 
 ### 🦷 Dentist Example:
 ```
-Employee Number: DEN-001
+Employee Number: DEN001
 Passcode: 234567
 ```
 
 ### 👩‍⚕️ Staff Example:
 ```
-Employee Number: STF-001
+Employee Number: STF001
 Passcode: 111222
 ```
 
 ### 🏢 Employee Receptionist:
 ```
-Employee Number: STF-004
+Employee Number: STF004
 Passcode: 444555
 ```
 
 ### 🖥️ **Front Desk Terminal (NO PAYROLL)**:
 ```
-Employee Number: FD-001
+Employee Number: FD001
 Passcode: 999999
 ```
 **🔒 Perfect for shared front desk use - Complete dental management without staff payroll access**
