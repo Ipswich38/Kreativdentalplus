@@ -16,7 +16,9 @@ import {
   ArrowLeft,
   Home,
   Package,
-  Wallet
+  Wallet,
+  Menu,
+  X
 } from "lucide-react";
 import { NewAppointmentPage } from "./NewAppointmentPage";
 import { AppointmentsPage } from "./AppointmentsPage";
@@ -112,23 +114,38 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
+      {/* Mobile Navigation Overlay */}
+      <div
+        className={`nav-overlay ${sidebarOpen ? 'active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Side Navigation Panel */}
-      <aside className="side-nav">
+      <aside className={`side-nav ${sidebarOpen ? 'open' : ''}`}>
         {/* Navigation Header */}
         <div className="nav-header">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-medium)'}}>
-              <Heart className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-medium)'}}>
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">KreativDental+</h1>
+                <p className="text-sm text-gray-600">Healthcare Management</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">KreativDental+</h1>
-              <p className="text-sm text-gray-600">Healthcare Management</p>
-            </div>
+            {/* Mobile Close Button */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
         {/* User Info */}
-        <div style={{padding: '16px 24px', borderBottom: '1px solid var(--color-gray-200)'}}>
+        <div style={{padding: '16px 16px 20px 16px'}}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{background: 'var(--color-blue-medium)'}}>
               {currentUser.name.charAt(0)}
@@ -160,7 +177,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </div>
 
         {/* Logout Section */}
-        <div style={{padding: '16px', borderTop: '1px solid var(--color-gray-200)'}}>
+        <div style={{padding: '8px 12px 16px 12px', marginTop: 'auto'}}>
           <button
             onClick={onLogout}
             className="nav-item"
@@ -176,13 +193,22 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       <div className="main-content">
         {/* Content Header */}
         <div className="content-header">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Good morning, {currentUser.name.split(' ')[0]}</h2>
-            <p className="text-gray-600">Welcome back to your dashboard</p>
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Good morning, {currentUser.name.split(' ')[0]}</h2>
+              <p className="text-gray-600">Welcome back to your dashboard</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
