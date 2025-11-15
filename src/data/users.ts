@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "dentist" | "staff" | "receptionist";
+export type UserRole = "admin" | "dentist" | "staff" | "receptionist" | "front_desk";
 
 export interface User {
   employeeId: string;
@@ -161,6 +161,18 @@ export const users: User[] = [
     position: "Receptionist",
     email: "lisa@kreativdental.com",
     mustChangePasscode: true,
+    passcodeSetDate: "2025-10-15",
+  },
+
+  // Front Desk Terminal (No Payroll Access)
+  {
+    employeeId: "FD-001",
+    name: "Front Desk Terminal",
+    role: "front_desk",
+    passcode: "999999",
+    position: "Front Desk Terminal",
+    email: "frontdesk@kreativdental.com",
+    mustChangePasscode: false,
     passcodeSetDate: "2025-10-15",
   },
 ];

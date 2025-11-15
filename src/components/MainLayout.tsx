@@ -29,6 +29,7 @@ import { AdminDashboard } from "./AdminDashboard";
 import { DentistDashboard } from "./DentistDashboard";
 import { StaffDashboard } from "./StaffDashboard";
 import { ReceptionistDashboard } from "./ReceptionistDashboard";
+import { FrontDeskDashboard } from "./FrontDeskDashboard";
 import type { User } from "../data/users";
 
 type TabType = "dashboard" | "appointment" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
@@ -54,15 +55,16 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   // Define navigation items based on user role
   const getNavItems = () => {
     const allItems = [
-      { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist"] },
-      { id: "appointment" as TabType, label: "Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist"] },
+      { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
+      { id: "appointment" as TabType, label: "Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
       { id: "dentists" as TabType, label: "Dentists", icon: UserCog, roles: ["admin"] },
-      { id: "patient-record" as TabType, label: "Patient Record", icon: Users, roles: ["admin", "dentist", "receptionist", "staff"] },
+      { id: "patient-record" as TabType, label: "Patient Record", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
       { id: "financial" as TabType, label: "Financial", icon: DollarSign, roles: ["admin"] },
-      { id: "service-catalog" as TabType, label: "Service Catalog", icon: Package, roles: ["admin", "dentist", "receptionist"] },
+      { id: "service-catalog" as TabType, label: "Service Catalog", icon: Package, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      // kreativPayroll is EXCLUDED for front_desk users
       { id: "kreativ-payroll" as TabType, label: "kreativPayroll", icon: Wallet, roles: ["admin", "dentist", "staff", "receptionist"] },
       { id: "attendance" as TabType, label: "Attendance", icon: Users, roles: ["admin", "dentist", "staff"] },
-      { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin"] },
+      { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin", "front_desk"] },
     ];
 
     return allItems.filter(item => item.roles.includes(currentUser.role));
@@ -238,6 +240,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "dentist" && <DentistDashboard currentUser={currentUser} />}
               {currentUser.role === "staff" && <StaffDashboard currentUser={currentUser} />}
               {currentUser.role === "receptionist" && <ReceptionistDashboard currentUser={currentUser} />}
+              {currentUser.role === "front_desk" && <FrontDeskDashboard currentUser={currentUser} />}
             </>
           )}
           {activeTab === "appointment" && <ProductionAppointmentPage currentUser={currentUser} />}

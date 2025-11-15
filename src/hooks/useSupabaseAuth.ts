@@ -8,7 +8,7 @@ interface StaffUser {
   full_name: string;
   email: string;
   passcode: string;
-  role: 'admin' | 'dentist' | 'staff' | 'receptionist';
+  role: 'admin' | 'dentist' | 'staff' | 'receptionist' | 'front_desk';
   position: string;
   specialization?: string;
   is_dentist: boolean;
