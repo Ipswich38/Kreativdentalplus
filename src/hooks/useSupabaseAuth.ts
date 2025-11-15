@@ -34,8 +34,15 @@ export function useSupabaseAuth() {
 
   // Initialize hook - set loading to false since we don't have persistent sessions
   useEffect(() => {
+    console.log('=== HOOK INITIALIZATION ===');
     setIsLoading(false);
   }, []);
+
+  // Log whenever currentUser changes
+  useEffect(() => {
+    console.log('=== CURRENT USER EFFECT ===');
+    console.log('currentUser changed to:', currentUser);
+  }, [currentUser]);
 
   // Convert StaffUser to User format for compatibility
   const convertToUser = (staffUser: StaffUser): User => ({

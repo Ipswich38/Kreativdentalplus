@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LoginPage } from "./components/LoginPage";
 import { MainLayout } from "./components/MainLayout";
 import type { User } from "./data/users";
@@ -7,10 +7,25 @@ import { useSupabaseAuth } from "./hooks/useSupabaseAuth";
 
 export default function App() {
   const { currentUser, isLoading, logout } = useSupabaseAuth();
+  const [forceRender, setForceRender] = useState(0);
 
   // Debug logging
   console.log('App render - currentUser:', currentUser);
   console.log('App render - isLoading:', isLoading);
+  console.log('App render - forceRender:', forceRender);
+
+  // Track currentUser changes with useEffect
+  useEffect(() => {
+    console.log('=== APP COMPONENT - CURRENT USER EFFECT ===');
+    console.log('currentUser changed in App component:', currentUser);
+    console.log('Should show MainLayout?', !!currentUser);
+
+    // Force a re-render when currentUser changes
+    if (currentUser) {
+      console.log('=== FORCING RE-RENDER ===');
+      setForceRender(prev => prev + 1);
+    }
+  }, [currentUser]);
 
   if (isLoading) {
     return (
