@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { User } from '@/data/users';
+import { supabase } from '../lib/supabase';
+import type { User } from '../data/users';
 
 interface StaffUser {
   id: string;
@@ -32,7 +32,16 @@ interface AuthContextType {
   logout: () => void;
 }
 
+interface SessionData {
+  user: User;
+  loginTime: number;
+  lastActivity: number;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const SESSION_STORAGE_KEY = 'kreativdental-session';
+const SESSION_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -42,11 +51,103 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Debug logging for currentUser changes
   console.log('AuthProvider - currentUser state:', currentUser);
 
-  // Initialize - set loading to false since we don't have persistent sessions
+  // Save session to localStorage
+  const saveSession = (user: User) => {
+    const sessionData: SessionData = {
+      user,
+      loginTime: Date.now(),
+      lastActivity: Date.now()
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+  };
+
+  // Load session from localStorage
+  const loadSession = (): User | null => {
+    try {
+      const sessionStr = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!sessionStr) return null;
+
+      const sessionData: SessionData = JSON.parse(sessionStr);
+      const now = Date.now();
+
+      // Check if session has expired (10 minutes of inactivity)
+      if (now - sessionData.lastActivity > SESSION_TIMEOUT) {
+        console.log('Session expired due to inactivity');
+        clearSession();
+        return null;
+      }
+
+      // Update last activity
+      sessionData.lastActivity = now;
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+
+      return sessionData.user;
+    } catch (error) {
+      console.error('Error loading session:', error);
+      clearSession();
+      return null;
+    }
+  };
+
+  // Clear session from localStorage
+  const clearSession = () => {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  };
+
+  // Update session activity
+  const updateActivity = () => {
+    const sessionStr = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (sessionStr) {
+      try {
+        const sessionData: SessionData = JSON.parse(sessionStr);
+        sessionData.lastActivity = Date.now();
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+      } catch (error) {
+        console.error('Error updating activity:', error);
+      }
+    }
+  };
+
+  // Initialize - check for existing session
   useEffect(() => {
     console.log('=== AUTH CONTEXT INITIALIZATION ===');
+    const savedUser = loadSession();
+    if (savedUser) {
+      console.log('Found existing session:', savedUser);
+      setCurrentUser(savedUser);
+    }
     setIsLoading(false);
-  }, []);
+
+    // Set up activity tracking
+    const trackActivity = () => {
+      if (currentUser) {
+        updateActivity();
+      }
+    };
+
+    // Track user activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+      document.addEventListener(event, trackActivity, { passive: true });
+    });
+
+    // Check session validity every minute
+    const sessionCheckInterval = setInterval(() => {
+      const user = loadSession();
+      if (!user && currentUser) {
+        console.log('Session expired, logging out');
+        setCurrentUser(null);
+        setError('Session expired due to inactivity. Please log in again.');
+      }
+    }, 60000); // Check every minute
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, trackActivity);
+      });
+      clearInterval(sessionCheckInterval);
+    };
+  }, [currentUser]);
 
   // Log whenever currentUser changes
   useEffect(() => {
@@ -111,7 +212,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('=== SETTING CURRENT USER IN CONTEXT ===');
       setCurrentUser(user);
-      console.log('Current user set in context, state should update everywhere');
+      saveSession(user);
+      console.log('Current user set in context and session saved');
 
       // Update last login
       await supabase
@@ -136,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     console.log('=== LOGOUT IN CONTEXT ===');
     setCurrentUser(null);
+    clearSession();
     setError(null);
   };
 

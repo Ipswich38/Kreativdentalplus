@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
 
 interface InventoryItem {
@@ -128,19 +128,27 @@ export function ProductionInventoryPage({ currentUser }: ProductionInventoryPage
         .from('stock_movements')
         .select(`
           *,
-          inventory!inner(name, item_code),
-          staff_users!inner(full_name)
+          inventory:inventory_item_id(name, item_code),
+          staff_users:performed_by(full_name)
         `)
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Stock movements query error:', error);
+        if (error.message.includes('relation "stock_movements" does not exist')) {
+          toast.error('Stock movements table not found. Please run the database setup script.');
+          setStockMovements([]);
+          return;
+        }
+        throw error;
+      }
 
       const processedData = (data || []).map(movement => ({
         ...movement,
-        item_name: movement.inventory?.name,
-        item_code: movement.inventory?.item_code,
-        staff_name: movement.staff_users?.full_name
+        item_name: movement.inventory?.name || 'Unknown Item',
+        item_code: movement.inventory?.item_code || 'N/A',
+        staff_name: movement.staff_users?.full_name || 'Unknown Staff'
       }));
 
       setStockMovements(processedData);
