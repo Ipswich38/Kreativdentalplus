@@ -244,4 +244,5 @@ SELECT 'inventory', count(*) FROM inventory
 UNION ALL
 SELECT 'staff_users', count(*) FROM staff_users;
 
-RAISE NOTICE 'Database setup complete! All tables recreated with proper structure and sample data.';
+-- Database setup complete! All tables recreated with proper structure and sample data.
+SELECT 'Database setup complete! All tables recreated with proper structure and sample data.' as setup_status;
