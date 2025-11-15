@@ -25,7 +25,15 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
+      console.log('=== LOGIN ATTEMPT ===');
+      console.log('Employee ID:', employeeId);
+      console.log('Passcode:', passcode);
+
       const { user, error } = await authenticateUser(employeeId, passcode);
+
+      console.log('=== AUTHENTICATION RESULT ===');
+      console.log('User returned:', user);
+      console.log('Error returned:', error);
 
       if (user) {
         // Check if passcode needs to be changed
@@ -33,13 +41,20 @@ export function LoginPage() {
           toast.warning("Your passcode has expired. Please change it after logging in.");
         }
 
+        console.log('=== LOGIN SUCCESS ===');
+        console.log('About to show success toast');
         toast.success(`Welcome back, ${user.name}!`);
+
+        console.log('=== CHECKING CURRENT USER STATE ===');
+        console.log('Current user from hook:', currentUser);
+
         // User is automatically set in useSupabaseAuth hook
       } else {
         setError(error || "Invalid Employee ID or Passcode");
         toast.error("Login failed. Please check your credentials.");
       }
     } catch (err: any) {
+      console.log('=== LOGIN ERROR ===', err);
       setError(err.message || "Login failed");
       toast.error("Login failed. Please try again.");
     } finally {

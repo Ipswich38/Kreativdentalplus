@@ -52,10 +52,16 @@ export function useSupabaseAuth() {
 
   // Authenticate user with employee ID and passcode
   const authenticateUser = async (employeeId: string, passcode: string): Promise<{ user: User | null; error: string | null }> => {
+    console.log('=== AUTHENTICATE USER START ===');
+    console.log('Setting loading to true');
     setIsLoading(true);
     setError(null);
 
     try {
+      console.log('=== QUERYING SUPABASE ===');
+      console.log('Employee ID:', employeeId);
+      console.log('Passcode:', passcode);
+
       const { data, error } = await supabase
         .from('staff_users')
         .select('*')
@@ -63,6 +69,10 @@ export function useSupabaseAuth() {
         .eq('passcode', passcode)
         .eq('is_active', true)
         .single();
+
+      console.log('=== SUPABASE RESPONSE ===');
+      console.log('Data:', data);
+      console.log('Error:', error);
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -79,8 +89,13 @@ export function useSupabaseAuth() {
         }
       }
 
+      console.log('=== CONVERTING USER ===');
       const user = convertToUser(data);
+      console.log('Converted user:', user);
+
+      console.log('=== SETTING CURRENT USER ===');
       setCurrentUser(user);
+      console.log('Current user set, state should update');
 
       // Update last login
       await supabase
@@ -88,12 +103,15 @@ export function useSupabaseAuth() {
         .update({ updated_at: new Date().toISOString() })
         .eq('id', data.id);
 
+      console.log('=== AUTHENTICATION SUCCESS ===');
       return { user, error: null };
     } catch (err: any) {
+      console.log('=== AUTHENTICATION ERROR ===', err);
       const errorMessage = err.message || 'Authentication failed';
       setError(errorMessage);
       return { user: null, error: errorMessage };
     } finally {
+      console.log('=== SETTING LOADING FALSE ===');
       setIsLoading(false);
     }
   };
