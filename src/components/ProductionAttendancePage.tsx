@@ -317,6 +317,8 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                     type="date"
                     value={newAttendance.date}
                     onChange={(e) => setNewAttendance(prev => ({ ...prev, date: e.target.value }))}
+                    className="touch-feedback text-base"
+                    style={{ fontSize: '16px' }}
                     required
                   />
                 </div>
@@ -328,6 +330,8 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                       type="time"
                       value={newAttendance.clock_in}
                       onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_in: e.target.value }))}
+                      className="touch-feedback text-base"
+                      style={{ fontSize: '16px' }}
                     />
                   </div>
                   <div>
@@ -336,6 +340,8 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                       type="time"
                       value={newAttendance.clock_out}
                       onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_out: e.target.value }))}
+                      className="touch-feedback text-base"
+                      style={{ fontSize: '16px' }}
                     />
                   </div>
                 </div>
@@ -401,22 +407,22 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                       <div className="flex gap-2">
                         {!isCheckedIn && !isCheckedOut && (
                           <Button
-                            size="sm"
                             onClick={() => handleClockAction(staff.id, 'in')}
-                            className="flex-1"
+                            className="flex-1 touch-feedback min-h-[48px] text-base md:text-sm font-medium bg-emerald-600 hover:bg-emerald-700"
+                            style={{ fontSize: '16px' }}
                           >
-                            Clock In
+                            🟢 Clock In
                           </Button>
                         )}
 
                         {isCheckedIn && (
                           <Button
-                            size="sm"
                             variant="outline"
                             onClick={() => handleClockAction(staff.id, 'out')}
-                            className="flex-1"
+                            className="flex-1 touch-feedback min-h-[48px] text-base md:text-sm font-medium border-red-300 text-red-600 hover:bg-red-50"
+                            style={{ fontSize: '16px' }}
                           >
-                            Clock Out
+                            🔴 Clock Out
                           </Button>
                         )}
 

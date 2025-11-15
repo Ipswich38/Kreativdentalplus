@@ -95,14 +95,16 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       )}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           w-64 bg-white border-r border-gray-200
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col
+          flex flex-col sidebar-mobile ${sidebarOpen ? 'open' : ''}
+          overflow-y-auto overscroll-contain
         `}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -153,11 +155,12 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`
-                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-                  transition-all duration-200
-                  ${isActive 
+                  w-full flex items-center gap-3 px-3 py-3 md:py-2.5 rounded-lg
+                  transition-all duration-200 min-h-[48px] md:min-h-[auto]
+                  touch-feedback text-base md:text-sm
+                  ${isActive
                     ? isKreativPayroll
-                      ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md' 
+                      ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md'
                       : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
                     : isKreativPayroll
                       ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200 hover:from-emerald-100 hover:to-green-100'
@@ -199,7 +202,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-4">
             <button
-              className="lg:hidden text-gray-600 hover:text-gray-900"
+              className="lg:hidden text-gray-600 hover:text-gray-900 p-2 rounded-lg touch-feedback min-h-[44px] min-w-[44px] flex items-center justify-center"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-6 h-6" />

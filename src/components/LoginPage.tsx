@@ -88,9 +88,13 @@ export function LoginPage() {
                       setEmployeeId(e.target.value.toUpperCase());
                       setError("");
                     }}
-                    className="pl-10"
+                    className="pl-10 text-base md:text-sm touch-feedback"
+                    style={{ fontSize: '16px' }}
                     required
                     autoComplete="off"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                 </div>
               </div>
@@ -102,6 +106,8 @@ export function LoginPage() {
                   <Input
                     id="passcode"
                     type="password"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="••••••"
                     value={passcode}
                     onChange={(e) => {
@@ -110,10 +116,13 @@ export function LoginPage() {
                       setPasscode(value);
                       setError("");
                     }}
-                    className="pl-10"
+                    className="pl-10 text-base md:text-sm touch-feedback"
+                    style={{ fontSize: '16px' }}
                     maxLength={6}
                     required
                     autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                 </div>
                 <p className="text-xs text-gray-500">
@@ -121,10 +130,11 @@ export function LoginPage() {
                 </p>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 touch-feedback min-h-[48px] text-base font-medium"
                 disabled={isLoading || employeeId.length === 0 || passcode.length !== 6}
+                style={{ fontSize: '16px' }}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>

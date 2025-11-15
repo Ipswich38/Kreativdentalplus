@@ -50,19 +50,27 @@
       },
     },
     build: {
-      target: 'esnext',
+      target: 'es2015',
       outDir: 'build',
+      sourcemap: false,
+      minify: 'esbuild',
       rollupOptions: {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
             ui: ['@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs'],
             charts: ['recharts'],
-            utils: ['class-variance-authority', 'clsx', 'tailwind-merge']
+            utils: ['class-variance-authority', 'clsx', 'tailwind-merge'],
+            supabase: ['@supabase/supabase-js']
           }
         }
       },
-      chunkSizeWarningLimit: 600
+      chunkSizeWarningLimit: 500,
+      assetsInlineLimit: 4096
+    },
+    // Mobile optimization
+    optimizeDeps: {
+      include: ['react', 'react-dom', '@supabase/supabase-js', 'lucide-react']
     },
     server: {
       port: 3000,
