@@ -122,7 +122,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-white border-r border-gray-200
+          w-64 bg-teal-800 border-r border-teal-700
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           flex flex-col sidebar-mobile ${sidebarOpen ? 'open' : ''}
@@ -131,7 +131,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {/* Logo Section */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-teal-700">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
               currentUser.role === 'it_admin'
@@ -141,16 +141,16 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               <Smile className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-gray-900">
+              <h2 className="text-white">
                 {currentUser.role === 'it_admin' ? 'IT Control' : 'kreativDental'}
               </h2>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-teal-300">
                 {currentUser.role === 'it_admin' ? 'Admin' : 'Plus'}
               </p>
             </div>
           </div>
           <button 
-            className="lg:hidden text-gray-500 hover:text-gray-700"
+            className="lg:hidden text-teal-300 hover:text-white"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -158,7 +158,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </div>
 
         {/* User Info */}
-        <div className="px-4 py-3 bg-blue-50 border-b">
+        <div className="px-4 py-3 bg-teal-900 border-b border-teal-700">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
               <AvatarFallback className="bg-blue-600 text-white">
@@ -166,13 +166,13 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-900 truncate">{currentUser.name}</p>
-              <Badge className="bg-blue-600 text-white text-xs">
+              <p className="text-sm text-white truncate">{currentUser.name}</p>
+              <Badge className="bg-teal-600 text-white text-xs">
                 {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
               </Badge>
             </div>
           </div>
-          <p className="text-xs text-gray-600 mt-2">ID: {currentUser.employeeId}</p>
+          <p className="text-xs text-teal-300 mt-2">ID: {currentUser.employeeId}</p>
         </div>
 
         {/* Navigation */}
@@ -196,7 +196,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
                       : 'bg-blue-600 text-white shadow-md'
                     : isKreativPayroll
                       ? 'bg-emerald-600 text-white border border-emerald-200 hover:bg-emerald-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-teal-300 hover:bg-teal-700'
                   }
                 `}
               >
@@ -213,14 +213,14 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </nav>
 
         {/* Bottom Section */}
-        <div className="p-3 border-t border-gray-200 space-y-2">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+        <div className="p-3 border-t border-teal-700 space-y-2">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-teal-300 hover:bg-teal-700 transition-colors">
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </button>
           <button 
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-teal-700 transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
