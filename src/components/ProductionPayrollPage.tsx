@@ -60,9 +60,11 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
     staff_user_id: '' // Empty means all staff
   });
 
-  // Permission checks
-  const canManagePayroll = ['admin'].includes(currentUser.role);
+  // Permission checks - more permissive for testing
+  const canManagePayroll = ['admin', 'dentist', 'it_admin'].includes(currentUser.role);
   const canViewOwnPayroll = true;
+
+  console.log('ProductionPayrollPage rendering for user:', currentUser.role, 'canManagePayroll:', canManagePayroll);
 
   // Generate pay period options
   const generatePayPeriods = () => {
@@ -375,18 +377,35 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
 
   // Load data on component mount
   useEffect(() => {
-    fetchPayrollRecords();
+    console.log('ProductionPayrollPage mounting, fetching payroll records...');
+    try {
+      fetchPayrollRecords();
+    } catch (error) {
+      console.error('Error in initial fetchPayrollRecords:', error);
+    }
   }, []);
 
   // Refresh when period changes
   useEffect(() => {
-    fetchPayrollRecords();
+    console.log('ProductionPayrollPage period/user changed, refetching...');
+    try {
+      fetchPayrollRecords();
+    } catch (error) {
+      console.error('Error in refresh fetchPayrollRecords:', error);
+    }
   }, [selectedPeriod, currentUser]);
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+  // Add error boundary protection
+  try {
+    return (
+      <div className="space-y-6">
+        {/* Debug info */}
+        <div className="text-xs text-gray-500">
+          Debug: User role: {currentUser.role}, Can manage: {canManagePayroll.toString()}
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-emerald-800">KreativPayroll</h2>
           <p className="text-muted-foreground">
@@ -662,4 +681,19 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       </Card>
     </div>
   );
+  } catch (error) {
+    console.error('Error rendering ProductionPayrollPage:', error);
+    return (
+      <div className="p-4">
+        <h2 className="text-xl font-bold text-red-600">Payroll System Error</h2>
+        <p className="text-gray-600">There was an error loading the payroll page.</p>
+        <details className="mt-4">
+          <summary className="cursor-pointer">Error Details</summary>
+          <pre className="mt-2 p-2 bg-gray-100 text-xs overflow-auto">
+            {error instanceof Error ? error.stack : String(error)}
+          </pre>
+        </details>
+      </div>
+    );
+  }
 }

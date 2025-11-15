@@ -24,6 +24,7 @@ import { PaymentsPage } from "./PaymentsPage";
 import { AppointmentStatusManager } from "./AppointmentStatusManager";
 import { DentistsPage } from "./DentistsPage";
 import { ProductionPayrollPage } from "./ProductionPayrollPage";
+import { SimplePayrollTest } from "./SimplePayrollTest";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
 import { ProductionFinancialPage } from "./ProductionFinancialPage";
 import { ProductionPatientPage } from "./ProductionPatientPage";
@@ -286,7 +287,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
           {activeTab === "service-catalog" && <ServiceCatalogPage />}
-          {activeTab === "kreativ-payroll" && <ProductionPayrollPage currentUser={currentUser} />}
+          {activeTab === "kreativ-payroll" && <SimplePayrollTest currentUser={currentUser} />}
           {activeTab === "attendance" && <ProductionAttendancePage currentUser={currentUser} />}
           {activeTab === "inventory" && <ProductionInventoryPage currentUser={currentUser} />}
         </main>
