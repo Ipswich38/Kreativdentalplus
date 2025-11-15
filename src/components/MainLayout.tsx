@@ -17,7 +17,8 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { AppointmentManagementPage } from "./AppointmentManagementPage";
+import { NewAppointmentPage } from "./NewAppointmentPage";
+import { AppointmentsPage } from "./AppointmentsPage";
 import { DentistsPage } from "./DentistsPage";
 import { ProductionPayrollPage } from "./ProductionPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
@@ -32,7 +33,7 @@ import { ReceptionistDashboard } from "./ReceptionistDashboard";
 import { FrontDeskDashboard } from "./FrontDeskDashboard";
 import type { User } from "../data/users";
 
-type TabType = "dashboard" | "appointment" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
+type TabType = "dashboard" | "appointment" | "appointments-list" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
 
 interface MainLayoutProps {
   currentUser: User;
@@ -60,7 +61,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const getNavItems = () => {
     const allItems = [
       { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
-      { id: "appointment" as TabType, label: "Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      { id: "appointment" as TabType, label: "Book Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      { id: "appointments-list" as TabType, label: "View Appointments", icon: Users, roles: ["admin", "dentist", "receptionist", "front_desk"] },
       { id: "dentists" as TabType, label: "Dentists", icon: UserCog, roles: ["admin"] },
       { id: "patient-record" as TabType, label: "Patient Record", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
       { id: "financial" as TabType, label: "Financial", icon: DollarSign, roles: ["admin"] },
@@ -248,7 +250,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "front_desk" && <FrontDeskDashboard currentUser={currentUser} />}
             </>
           )}
-          {activeTab === "appointment" && <AppointmentManagementPage />}
+          {activeTab === "appointment" && <NewAppointmentPage />}
+          {activeTab === "appointments-list" && <AppointmentsPage />}
           {activeTab === "dentists" && <DentistsPage />}
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}

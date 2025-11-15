@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug: KreativDental Plus Dentist Loading</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>🔍 Debugging Dentist Data</h1>
+    <div id="results"></div>
+
+    <script>
+        // Use your actual Supabase credentials
+        const supabaseUrl = 'https://lxyexybnotixgpzflota.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4eWV4eWJub3RpeGdwemZsb3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMDcwODIsImV4cCI6MjA3NTc4MzA4Mn0.TSbnvPKWiDdEFbyOh38qj_L87LZ75p3FiOW05hzEBlM';
+
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function debugDentists() {
+            const results = document.getElementById('results');
+
+            try {
+                // Test 1: Check if staff_users table exists
+                results.innerHTML += '<h2>📋 Test 1: Checking staff_users table</h2>';
+
+                const { data: allStaff, error: allError } = await supabase
+                    .from('staff_users')
+                    .select('*');
+
+                if (allError) {
+                    results.innerHTML += `<p style="color: red;">❌ Error loading staff_users: ${allError.message}</p>`;
+                    return;
+                }
+
+                results.innerHTML += `<p>✅ staff_users table loaded. Found ${allStaff.length} total staff members.</p>`;
+
+                // Test 2: Check dentist loading (what the app actually loads)
+                results.innerHTML += '<h2>🦷 Test 2: Loading dentists (app query)</h2>';
+
+                const { data: dentists, error: dentistError } = await supabase
+                    .from('staff_users')
+                    .select('*')
+                    .eq('is_dentist', true)
+                    .eq('is_active', true)
+                    .order('full_name');
+
+                if (dentistError) {
+                    results.innerHTML += `<p style="color: red;">❌ Error loading dentists: ${dentistError.message}</p>`;
+                    return;
+                }
+
+                results.innerHTML += `<p>✅ Found ${dentists.length} active dentists:</p>`;
+                results.innerHTML += '<ul>';
+                dentists.forEach((dentist, index) => {
+                    const isReal = ['Camila', 'Jerome', 'Clency', 'Fatima', 'Fevi', 'Jonathan', 'Felipe', 'Shirley'].some(name =>
+                        dentist.full_name.includes(name)
+                    );
+                    const status = isReal ? '✅ REAL' : '❌ FAKE';
+                    results.innerHTML += `<li><strong>${status} ${dentist.employee_number}:</strong> ${dentist.full_name} (${dentist.specialization})</li>`;
+                });
+                results.innerHTML += '</ul>';
+
+                // Test 3: Show all staff for comparison
+                results.innerHTML += '<h2>👥 Test 3: All staff members</h2>';
+                results.innerHTML += '<ul>';
+                allStaff.forEach(staff => {
+                    results.innerHTML += `<li><strong>${staff.employee_number}:</strong> ${staff.full_name} - ${staff.role} ${staff.is_dentist ? '(DENTIST)' : ''}</li>`;
+                });
+                results.innerHTML += '</ul>';
+
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">❌ JavaScript Error: ${error.message}</p>`;
+            }
+        }
+
+        // Run the debug when page loads
+        debugDentists();
+    </script>
+</body>
+</html>

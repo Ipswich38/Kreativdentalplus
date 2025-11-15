@@ -29,9 +29,12 @@ import {
   Stethoscope,
   ArrowLeft,
   Check,
-  X
+  X,
+  Download,
+  FileSpreadsheet
 } from "lucide-react";
 import { supabase } from '../lib/supabase';
+import * as XLSX from 'xlsx';
 
 interface Dentist {
   id: string;
@@ -57,6 +60,7 @@ interface AppointmentFormData {
   date: string;
   time: string;
   notes: string;
+  customTime?: string;
 }
 
 const timeSlots = [
@@ -86,6 +90,9 @@ export function NewAppointmentPage() {
   const [dentists, setDentists] = useState<Dentist[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [useCustomTime, setUseCustomTime] = useState(false);
+  const [customTime, setCustomTime] = useState('');
+  const [allAppointments, setAllAppointments] = useState<any[]>([]);
   const [formData, setFormData] = useState<AppointmentFormData>({
     patientName: '',
     patientPhone: '',
@@ -93,11 +100,13 @@ export function NewAppointmentPage() {
     service: '',
     date: '',
     time: '',
-    notes: ''
+    notes: '',
+    customTime: ''
   });
 
   useEffect(() => {
     loadDentists();
+    loadAllAppointments();
   }, []);
 
   useEffect(() => {
@@ -122,6 +131,26 @@ export function NewAppointmentPage() {
       console.error('Error loading dentists:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAllAppointments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+          *,
+          patients(first_name, last_name, phone),
+          staff_users(full_name, specialization),
+          services(name)
+        `)
+        .order('appointment_date', { ascending: false })
+        .order('appointment_time');
+
+      if (error) throw error;
+      setAllAppointments(data || []);
+    } catch (error) {
+      console.error('Error loading all appointments:', error);
     }
   };
 
@@ -170,12 +199,33 @@ export function NewAppointmentPage() {
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
+    setUseCustomTime(false);
     setFormData(prev => ({
       ...prev,
       date: selectedDate.toISOString().split('T')[0],
-      time: convertTo24Hour(time)
+      time: convertTo24Hour(time),
+      customTime: ''
     }));
     setStep('form');
+  };
+
+  const handleCustomTimeSelect = () => {
+    if (customTime && isValidTime(customTime)) {
+      setSelectedTime(`Custom: ${customTime}`);
+      setUseCustomTime(true);
+      setFormData(prev => ({
+        ...prev,
+        date: selectedDate.toISOString().split('T')[0],
+        time: customTime,
+        customTime: customTime
+      }));
+      setStep('form');
+    }
+  };
+
+  const isValidTime = (time: string): boolean => {
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    return timeRegex.test(time);
   };
 
   const convertTo24Hour = (time12h: string): string => {
@@ -186,28 +236,113 @@ export function NewAppointmentPage() {
     return `${hours.padStart(2, '0')}:${minutes}`;
   };
 
+  const generateAppointmentNumber = (): string => {
+    const timestamp = Date.now().toString().slice(-6);
+    return `APT${timestamp}`;
+  };
+
+  const createPatient = async () => {
+    if (!formData.patientName || !formData.patientPhone) return null;
+
+    const patientNumber = `PAT${Date.now().toString().slice(-6)}`;
+    const [firstName, ...lastNameParts] = formData.patientName.trim().split(' ');
+    const lastName = lastNameParts.join(' ') || firstName;
+
+    const { data, error } = await supabase
+      .from('patients')
+      .insert([{
+        patient_number: patientNumber,
+        first_name: firstName,
+        last_name: lastName,
+        phone: formData.patientPhone,
+        email: formData.patientEmail || null
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement appointment creation
-    console.log('Creating appointment:', {
-      ...formData,
-      dentistId: selectedDentist?.id,
-      dentistName: selectedDentist?.full_name
-    });
 
-    // Reset form and go back to start
-    setStep('dentists');
-    setSelectedDentist(null);
-    setSelectedTime('');
-    setFormData({
-      patientName: '',
-      patientPhone: '',
-      patientEmail: '',
-      service: '',
-      date: '',
-      time: '',
-      notes: ''
-    });
+    try {
+      setLoading(true);
+
+      const patient = await createPatient();
+      if (!patient) throw new Error('Failed to create patient');
+
+      const service = services.find(s => s.id === formData.service);
+
+      const appointmentData = {
+        appointment_number: generateAppointmentNumber(),
+        patient_id: patient.id,
+        dentist_id: selectedDentist?.id,
+        service_id: null, // We'll create services table later
+        appointment_date: formData.date,
+        appointment_time: formData.time,
+        status: 'scheduled',
+        notes: formData.notes || null,
+        total_amount: service?.price || 0
+      };
+
+      const { error: appointmentError } = await supabase
+        .from('appointments')
+        .insert([appointmentData]);
+
+      if (appointmentError) throw appointmentError;
+
+      alert('✅ Appointment booked successfully!');
+
+      // Refresh appointments data
+      loadDentistAppointments();
+      loadAllAppointments();
+
+      // Reset form and go back to start
+      setStep('dentists');
+      setSelectedDentist(null);
+      setSelectedTime('');
+      setUseCustomTime(false);
+      setCustomTime('');
+      setFormData({
+        patientName: '',
+        patientPhone: '',
+        patientEmail: '',
+        service: '',
+        date: '',
+        time: '',
+        notes: '',
+        customTime: ''
+      });
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      alert('❌ Failed to book appointment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportToExcel = () => {
+    const exportData = allAppointments.map(appointment => ({
+      'Appointment #': appointment.appointment_number,
+      'Date': appointment.appointment_date,
+      'Time': appointment.appointment_time,
+      'Patient Name': appointment.patients ? `${appointment.patients.first_name} ${appointment.patients.last_name}` : 'N/A',
+      'Patient Phone': appointment.patients?.phone || 'N/A',
+      'Dentist': appointment.staff_users?.full_name || 'N/A',
+      'Specialization': appointment.staff_users?.specialization || 'N/A',
+      'Status': appointment.status,
+      'Total Amount': appointment.total_amount ? `₱${appointment.total_amount}` : 'N/A',
+      'Notes': appointment.notes || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Appointments');
+
+    const today = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `KreativDental_Appointments_${today}.xlsx`);
   };
 
   if (loading) {
@@ -334,51 +469,95 @@ export function NewAppointmentPage() {
           {/* Time Slots */}
           <Card className="border-0 shadow-xl rounded-2xl">
             <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 rounded-t-2xl">
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-green-600" />
-                Available Times
-              </CardTitle>
-              <p className="text-sm text-gray-600">
-                {selectedDate.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-green-600" />
+                    Available Times
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    {selectedDate.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <Button
+                  onClick={exportToExcel}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl"
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 gap-3">
-                {getTimeSlotAvailability().map((slot) => (
-                  <Button
-                    key={slot.time}
-                    variant={slot.available ? "outline" : "ghost"}
-                    disabled={!slot.available}
-                    onClick={() => slot.available && handleTimeSelect(slot.time)}
-                    className={`h-12 rounded-xl transition-all ${
-                      slot.available
-                        ? 'hover:bg-blue-50 hover:border-blue-300 hover:scale-105 active:scale-95'
-                        : 'opacity-50 cursor-not-allowed bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {slot.available ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <X className="w-4 h-4 text-red-500" />
-                      )}
-                      <span className={slot.available ? 'text-gray-900' : 'text-gray-400'}>
-                        {slot.time}
-                      </span>
-                    </div>
-                  </Button>
-                ))}
+            <CardContent className="p-6 space-y-6">
+              {/* Regular Time Slots */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Regular Time Slots</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {getTimeSlotAvailability().map((slot) => (
+                    <Button
+                      key={slot.time}
+                      variant={slot.available ? "outline" : "ghost"}
+                      disabled={!slot.available}
+                      onClick={() => slot.available && handleTimeSelect(slot.time)}
+                      className={`h-12 rounded-xl transition-all ${
+                        slot.available
+                          ? 'hover:bg-blue-50 hover:border-blue-300 hover:scale-105 active:scale-95'
+                          : 'opacity-50 cursor-not-allowed bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {slot.available ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-500" />
+                        )}
+                        <span className={slot.available ? 'text-gray-900' : 'text-gray-400'}>
+                          {slot.time}
+                        </span>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
               </div>
 
-              {getTimeSlotAvailability().every(slot => !slot.available) && (
+              {/* Custom Time Input */}
+              <div className="border-t pt-6">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Custom Time</h4>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Input
+                      type="time"
+                      value={customTime}
+                      onChange={(e) => setCustomTime(e.target.value)}
+                      className="rounded-xl h-12"
+                      placeholder="HH:MM"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleCustomTimeSelect}
+                    disabled={!customTime || !isValidTime(customTime)}
+                    className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Book Time
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Enter any time in 24-hour format (e.g., 14:30 for 2:30 PM)
+                </p>
+              </div>
+
+              {getTimeSlotAvailability().every(slot => !slot.available) && !customTime && (
                 <div className="text-center py-8">
                   <Clock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No available time slots for this date</p>
-                  <p className="text-sm text-gray-400">Please select another date</p>
+                  <p className="text-gray-500">No available regular time slots</p>
+                  <p className="text-sm text-gray-400">Use custom time or select another date</p>
                 </div>
               )}
             </CardContent>
@@ -395,7 +574,7 @@ export function NewAppointmentPage() {
               Patient Information
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Appointment with {selectedDentist?.full_name} on {selectedDate.toLocaleDateString()} at {selectedTime}
+              Appointment with {selectedDentist?.full_name} on {selectedDate.toLocaleDateString()} at {useCustomTime ? formData.customTime : selectedTime}
             </p>
           </CardHeader>
           <CardContent className="p-6">
