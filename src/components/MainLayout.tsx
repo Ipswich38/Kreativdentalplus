@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  DollarSign, 
-  Package, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  DollarSign,
+  Package,
   Wallet,
   Menu,
   X,
@@ -12,13 +12,16 @@ import {
   LogOut,
   Bell,
   Settings,
-  UserCog
+  UserCog,
+  Activity
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { NewAppointmentPage } from "./NewAppointmentPage";
 import { AppointmentsPage } from "./AppointmentsPage";
+import { PaymentsPage } from "./PaymentsPage";
+import { AppointmentStatusManager } from "./AppointmentStatusManager";
 import { DentistsPage } from "./DentistsPage";
 import { ProductionPayrollPage } from "./ProductionPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
@@ -34,7 +37,7 @@ import { ReceptionistDashboard } from "./ReceptionistDashboard";
 import { FrontDeskDashboard } from "./FrontDeskDashboard";
 import type { User } from "../data/users";
 
-type TabType = "dashboard" | "appointment" | "appointments-list" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
+type TabType = "dashboard" | "appointment" | "appointments-list" | "payments" | "appointment-status" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
 
 interface MainLayoutProps {
   currentUser: User;
@@ -73,6 +76,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
       { id: "appointment" as TabType, label: "Book Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
       { id: "appointments-list" as TabType, label: "View Appointments", icon: Users, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      { id: "payments" as TabType, label: "Payments", icon: DollarSign, roles: ["admin", "receptionist", "front_desk"] },
+      { id: "appointment-status" as TabType, label: "Patient Flow", icon: Activity, roles: ["admin", "receptionist", "front_desk"] },
       { id: "dentists" as TabType, label: "Dentists", icon: UserCog, roles: ["admin"] },
       { id: "patient-record" as TabType, label: "Patient Record", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
       { id: "financial" as TabType, label: "Financial", icon: DollarSign, roles: ["admin"] },
@@ -275,6 +280,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "appointments-list" && (
             currentUser.role === "it_admin" ? <ITAdminDashboard currentUser={currentUser} /> : <AppointmentsPage />
           )}
+          {activeTab === "payments" && <PaymentsPage currentUser={currentUser} />}
+          {activeTab === "appointment-status" && <AppointmentStatusManager />}
           {activeTab === "dentists" && <DentistsPage />}
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
