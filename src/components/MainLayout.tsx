@@ -17,7 +17,7 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { ProductionAppointmentPage } from "./ProductionAppointmentPage";
+import { AppointmentManagementPage } from "./AppointmentManagementPage";
 import { DentistsPage } from "./DentistsPage";
 import { ProductionPayrollPage } from "./ProductionPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
@@ -248,7 +248,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "front_desk" && <FrontDeskDashboard currentUser={currentUser} />}
             </>
           )}
-          {activeTab === "appointment" && <ProductionAppointmentPage currentUser={currentUser} />}
+          {activeTab === "appointment" && <AppointmentManagementPage />}
           {activeTab === "dentists" && <DentistsPage />}
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
