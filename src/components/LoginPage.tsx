@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Smile, Lock, UserCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner@2.0.3";
 import { Alert, AlertDescription } from "./ui/alert";
-import { useSupabaseAuth } from "../hooks/useSupabaseAuth";
+import { useAuth } from "../contexts/AuthContext";
 
 export function LoginPage() {
   const [employeeId, setEmployeeId] = useState("");
@@ -14,10 +14,7 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { authenticateUser, currentUser } = useSupabaseAuth();
-
-  // Debug logging
-  console.log('LoginPage - currentUser state:', currentUser);
+  const { authenticateUser } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +42,8 @@ export function LoginPage() {
         console.log('About to show success toast');
         toast.success(`Welcome back, ${user.name}!`);
 
-        console.log('=== CHECKING CURRENT USER STATE ===');
-        console.log('Current user from hook:', currentUser);
+        console.log('=== LOGIN COMPLETED ===');
+        console.log('Authentication successful, App should now show MainLayout');
 
         // User is automatically set in useSupabaseAuth hook
       } else {
