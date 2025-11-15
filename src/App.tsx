@@ -8,6 +8,9 @@ import { useSupabaseAuth } from "./hooks/useSupabaseAuth";
 export default function App() {
   const { currentUser, logout } = useSupabaseAuth();
 
+  // Debug logging
+  console.log('App render - currentUser:', currentUser);
+
   return (
     <>
       <Toaster position="top-right" richColors />

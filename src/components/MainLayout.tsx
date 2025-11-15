@@ -43,6 +43,10 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Debug logging
+  console.log('MainLayout - currentUser:', currentUser);
+  console.log('MainLayout - activeTab:', activeTab);
+
   // Listen for navigation events from dashboard
   useState(() => {
     const handleNavigate = (e: CustomEvent<TabType>) => {
@@ -236,6 +240,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${activeTab === "kreativ-payroll" ? "bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50" : ""}`}>
           {activeTab === "dashboard" && (
             <>
+              {console.log('Rendering dashboard for role:', currentUser.role)}
               {currentUser.role === "admin" && <AdminDashboard currentUser={currentUser} />}
               {currentUser.role === "dentist" && <DentistDashboard currentUser={currentUser} />}
               {currentUser.role === "staff" && <StaffDashboard currentUser={currentUser} />}
