@@ -35,16 +35,42 @@
 
 ---
 
-## 👩‍⚕️ STAFF (4 People)
+## 👩‍⚕️ STAFF (3 People)
 
 | Employee Number | Name | Position | Passcode | Hourly Rate |
 |----------------|------|----------|----------|-------------|
 | **STF-001** | Ms. Jezel Roche | Senior Dental Assistant | **111222** | ₱850/hr |
 | **STF-002** | Ms. Mhay Blanqueza | Dental Hygienist | **222333** | ₱900/hr |
 | **STF-003** | Ms. Andrea Villar | Treatment Coordinator | **333444** | ₱950/hr |
-| **STF-004** | Ms. Angel Kaye Sarmiento | Front Desk Manager | **444555** | ₱750/hr |
 
 **Access**: Personal dashboard, view appointments, own payroll, clock in/out
+
+---
+
+## 🏢 EMPLOYEE RECEPTIONIST (1 Person)
+
+| Employee Number | Name | Position | Passcode | Hourly Rate |
+|----------------|------|----------|----------|-------------|
+| **STF-004** | Ms. Angel Kaye Sarmiento | Employee Receptionist | **444555** | ₱750/hr |
+
+**Access**: Reception dashboard, manage appointments/patients, own payroll, clock in/out
+
+---
+
+## 🖥️ FRONT DESK TERMINAL (Shared Account)
+
+| Employee Number | Name | Type | Passcode | Purpose |
+|----------------|------|------|----------|---------|
+| **FD-001** | Front Desk Terminal | Shared Terminal | **999999** | Public Front Desk Use |
+
+**🔒 RESTRICTED ACCESS**: Complete dental management **WITHOUT payroll access**
+- ✅ Patient Management (Full Access)
+- ✅ Appointment Booking (Full Access)
+- ✅ Service Catalog (View Access)
+- ✅ Inventory Check (View Access)
+- ❌ **NO Payroll System Access**
+- ❌ **NO Financial Reports Access**
+- ❌ **NO Staff Management Access**
 
 ---
 
@@ -73,7 +99,7 @@
 - ❌ Financial management
 - ❌ Staff management
 
-### 👩‍⚕️ **Staff (STF-001 to STF-004)**
+### 👩‍⚕️ **Staff (STF-001 to STF-003)**
 - ✅ Personal Dashboard (their tasks, schedule)
 - ✅ Appointments (view only, for assisting)
 - ✅ Patient Records (limited view for assistance)
@@ -83,29 +109,62 @@
 - ❌ Financial transactions
 - ❌ System administration
 
+### 🏢 **Employee Receptionist (STF-004)**
+- ✅ Reception Dashboard (front office metrics)
+- ✅ Appointment Management (full booking system)
+- ✅ Patient Management (full records access)
+- ✅ Service Catalog (view pricing, treatments)
+- ✅ Personal Payroll (own salary, hours worked)
+- ✅ Personal Attendance (clock in/out)
+- ❌ Other staff financial data
+- ❌ System administration
+
+### 🖥️ **Front Desk Terminal (FD-001)**
+- ✅ Front Desk Dashboard (dental operations overview)
+- ✅ Appointment Management (full booking system)
+- ✅ Patient Management (complete records access)
+- ✅ Service Catalog (view pricing, treatments)
+- ✅ Inventory Check (view stock levels)
+- ❌ **NO Payroll Access** (completely hidden)
+- ❌ **NO Financial Reports** (no sensitive data)
+- ❌ **NO Staff Management** (privacy protected)
+
 ---
 
 ## 🚀 Quick Test Login
 
 **For immediate testing, use:**
 
-### Owner Access:
+### 👑 Owner Access (Full System):
 ```
 Employee Number: OWN-001
 Passcode: 123456
 ```
 
-### Dentist Example:
+### 🦷 Dentist Example:
 ```
 Employee Number: DEN-001
 Passcode: 234567
 ```
 
-### Staff Example:
+### 👩‍⚕️ Staff Example:
 ```
 Employee Number: STF-001
 Passcode: 111222
 ```
+
+### 🏢 Employee Receptionist:
+```
+Employee Number: STF-004
+Passcode: 444555
+```
+
+### 🖥️ **Front Desk Terminal (NO PAYROLL)**:
+```
+Employee Number: FD-001
+Passcode: 999999
+```
+**🔒 Perfect for shared front desk use - Complete dental management without staff payroll access**
 
 ---
 
@@ -170,7 +229,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_key
 
 ## 📱 **Mobile Ready**
 
-All 12 staff members can use their mobile devices with:
+All 13 user accounts (12 employees + 1 front desk terminal) can use mobile devices with:
 - Lightning-fast touch interactions
 - Perfect form inputs
 - Native mobile keyboards
@@ -180,7 +239,7 @@ All 12 staff members can use their mobile devices with:
 
 ## 🎯 **Ready for Production Deployment!**
 
-Your KreativDental Plus system with 12 real staff accounts is now:
+Your KreativDental Plus system with 13 user accounts (12 employees + 1 shared front desk terminal) is now:
 - 🔐 **Securely authenticated** with role-based access
 - 📱 **Mobile optimized** for all devices
 - ⚡ **Performance optimized** with fast loading
