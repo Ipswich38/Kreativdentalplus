@@ -27,6 +27,7 @@ import { ProductionPatientPage } from "./ProductionPatientPage";
 import { ProductionAttendancePage } from "./ProductionAttendancePage";
 import { ProductionInventoryPage } from "./ProductionInventoryPage";
 import { AdminDashboard } from "./AdminDashboard";
+import { ITAdminDashboard } from "./ITAdminDashboard";
 import { DentistDashboard } from "./DentistDashboard";
 import { StaffDashboard } from "./StaffDashboard";
 import { ReceptionistDashboard } from "./ReceptionistDashboard";
@@ -59,6 +60,15 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
 
   // Define navigation items based on user role
   const getNavItems = () => {
+    // IT Admin gets special navigation (hidden from regular users)
+    if (currentUser.role === "it_admin") {
+      return [
+        { id: "dashboard" as TabType, label: "🔒 IT Control Center", icon: LayoutDashboard, roles: ["it_admin"] },
+        { id: "appointment" as TabType, label: "System Monitor", icon: Calendar, roles: ["it_admin"] },
+        { id: "appointments-list" as TabType, label: "User Activity", icon: Users, roles: ["it_admin"] },
+      ];
+    }
+
     const allItems = [
       { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
       { id: "appointment" as TabType, label: "Book Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
@@ -117,12 +127,20 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              currentUser.role === 'it_admin'
+                ? 'bg-gradient-to-br from-red-600 to-purple-800'
+                : 'bg-gradient-to-br from-purple-500 to-pink-500'
+            }`}>
               <Smile className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-gray-900">kreativDental</h2>
-              <p className="text-xs text-gray-500">Plus</p>
+              <h2 className="text-gray-900">
+                {currentUser.role === 'it_admin' ? 'IT Control' : 'kreativDental'}
+              </h2>
+              <p className="text-xs text-gray-500">
+                {currentUser.role === 'it_admin' ? 'Admin' : 'Plus'}
+              </p>
             </div>
           </div>
           <button 
@@ -243,6 +261,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "dashboard" && (
             <>
               {console.log('Rendering dashboard for role:', currentUser.role)}
+              {currentUser.role === "it_admin" && <ITAdminDashboard currentUser={currentUser} />}
               {currentUser.role === "admin" && <AdminDashboard currentUser={currentUser} />}
               {currentUser.role === "dentist" && <DentistDashboard currentUser={currentUser} />}
               {currentUser.role === "staff" && <StaffDashboard currentUser={currentUser} />}
@@ -250,8 +269,12 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "front_desk" && <FrontDeskDashboard currentUser={currentUser} />}
             </>
           )}
-          {activeTab === "appointment" && <NewAppointmentPage />}
-          {activeTab === "appointments-list" && <AppointmentsPage />}
+          {activeTab === "appointment" && (
+            currentUser.role === "it_admin" ? <ITAdminDashboard currentUser={currentUser} /> : <NewAppointmentPage />
+          )}
+          {activeTab === "appointments-list" && (
+            currentUser.role === "it_admin" ? <ITAdminDashboard currentUser={currentUser} /> : <AppointmentsPage />
+          )}
           {activeTab === "dentists" && <DentistsPage />}
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
