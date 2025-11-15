@@ -236,3 +236,172 @@ input[type="radio"] {
   transform: scale(0.95);
   transition: opacity 150ms ease, transform 150ms ease;
 }
+
+/* KreativDental Plus specific mobile enhancements */
+.dashboard-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .dashboard-card {
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+}
+
+/* Mobile-first appointment cards */
+.appointment-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.appointment-card:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+/* Calendar mobile improvements */
+.mobile-calendar-container {
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 640px) {
+  .mobile-calendar-container {
+    border-radius: 20px;
+    margin: 0 -4px; /* Extend to screen edges */
+  }
+}
+
+/* Form enhancements for dental app */
+.dental-form-input {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dental-form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Status badges for appointments */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-completed {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-scheduled {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.status-confirmed {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.status-cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Mobile navigation bar */
+.mobile-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 8px 16px 24px; /* Extra padding for iPhone home indicator */
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
+
+/* Safe area support for iPhone */
+@supports (padding: max(0px)) {
+  .mobile-nav-bar {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Loading spinner for dental app */
+.dental-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dental-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced touch feedback for mobile */
+.mobile-touch {
+  transition: all 0.1s ease;
+}
+
+.mobile-touch:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+/* Gradient backgrounds for dental app */
+.dental-gradient-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.dental-gradient-green {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+}
+
+.dental-gradient-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.dental-gradient-pink {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+}

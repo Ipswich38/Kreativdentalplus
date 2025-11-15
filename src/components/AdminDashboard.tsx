@@ -1,5 +1,7 @@
-import { Calendar, Users, DollarSign, Wallet } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Calendar, Users, DollarSign, Wallet, Activity, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { DashboardService, type DashboardStats, type RecentActivity } from '../services/dashboardService';
 import type { User } from "../data/users";
 
 interface AdminDashboardProps {
@@ -7,102 +9,177 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ currentUser }: AdminDashboardProps) {
+  const [stats, setStats] = useState<DashboardStats>({
+    todayAppointments: 0,
+    totalPatients: 0,
+    monthlyRevenue: 0,
+    pendingPayments: 0,
+    lowStockItems: 0,
+    activeStaff: 0,
+    completedAppointments: 0,
+    pendingAppointments: 0
+  });
+  const [activities, setActivities] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [dashboardStats, recentActivities] = await Promise.all([
+          DashboardService.getDashboardStats(),
+          DashboardService.getRecentActivity(8)
+        ]);
+        setStats(dashboardStats);
+        setActivities(recentActivities);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Welcome Message */}
-      <div>
-        <h2 className="text-gray-900 mb-1">Welcome back, {currentUser.name}</h2>
-        <p className="text-gray-600">System Administrator - Full Access</p>
+    <div className="space-y-4 px-4 sm:px-6 lg:px-0">
+      {/* Mobile-First Welcome Message */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Welcome back, {currentUser.name}</h2>
+        <p className="text-blue-100 text-sm sm:text-base">System Administrator • Full Access</p>
+        <div className="flex items-center gap-2 mt-3">
+          <Activity className="w-4 h-4" />
+          <span className="text-sm text-blue-100">Real-time system overview</span>
+        </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Today's Appointments" value="12" icon={Calendar} color="blue" />
-        <StatCard title="Total Patients" value="342" icon={Users} color="cyan" />
-        <StatCard title="Monthly Revenue" value="₱245,000" icon={DollarSign} color="green" />
-        <StatCard title="Pending Payments" value="8" icon={Wallet} color="orange" />
+      {/* Mobile-Optimized Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <MobileStatCard
+          title="Today's Appointments"
+          value={stats.todayAppointments.toString()}
+          icon={Calendar}
+          color="blue"
+          subtitle={`${stats.completedAppointments} completed`}
+        />
+        <MobileStatCard
+          title="Total Patients"
+          value={stats.totalPatients.toString()}
+          icon={Users}
+          color="cyan"
+          subtitle="Active records"
+        />
+        <MobileStatCard
+          title="Monthly Revenue"
+          value={`₱${stats.monthlyRevenue.toLocaleString()}`}
+          icon={DollarSign}
+          color="green"
+          subtitle="This month"
+        />
+        <MobileStatCard
+          title="Low Stock"
+          value={stats.lowStockItems.toString()}
+          icon={Wallet}
+          color="orange"
+          subtitle="Items need restocking"
+        />
       </div>
 
-      {/* System Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Active Staff</CardTitle>
+      {/* Mobile-First System Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              Active Staff
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-900">9 Employees</p>
-            <p className="text-sm text-gray-600 mt-1">3 Dentists, 5 Staff, 1 Receptionist</p>
+          <CardContent className="pt-0">
+            <p className="text-2xl font-bold text-gray-900 mb-1">{stats.activeStaff}</p>
+            <p className="text-sm text-gray-600">Total employees online</p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Today's Schedule</CardTitle>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-green-600" />
+              Today's Schedule
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-900">12 Appointments</p>
-            <p className="text-sm text-gray-600 mt-1">8 Completed, 4 Pending</p>
+          <CardContent className="pt-0">
+            <p className="text-2xl font-bold text-gray-900 mb-1">{stats.todayAppointments}</p>
+            <p className="text-sm text-gray-600">{stats.completedAppointments} completed, {stats.pendingAppointments} pending</p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle>Payroll Summary</CardTitle>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 sm:col-span-2 lg:col-span-1">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+              System Status
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-900">₱125,000</p>
-            <p className="text-sm text-gray-600 mt-1">Current month payable</p>
+          <CardContent className="pt-0">
+            <p className="text-2xl font-bold text-green-600 mb-1">Healthy</p>
+            <p className="text-sm text-gray-600">All systems operational</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Activity */}
+      {/* Mobile-Optimized Recent Activity */}
       <Card className="border-0 shadow-lg">
-        <CardHeader className="border-b">
-          <CardTitle>Recent Activity</CardTitle>
+        <CardHeader className="border-b bg-gray-50 rounded-t-lg">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-gray-600" />
+            Recent Activity
+          </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <ActivityItem 
-              title="New appointment scheduled"
-              description="Maria Santos - Oral Prophylaxis"
-              time="5 minutes ago"
-              type="appointment"
-            />
-            <ActivityItem 
-              title="Payment received"
-              description="₱15,000 - Juan dela Cruz"
-              time="1 hour ago"
-              type="payment"
-            />
-            <ActivityItem 
-              title="New patient registered"
-              description="Anna Reyes"
-              time="2 hours ago"
-              type="patient"
-            />
-            <ActivityItem 
-              title="Attendance logged"
-              description="STF-002 - MS. MHAY BLANQUEZA"
-              time="3 hours ago"
-              type="attendance"
-            />
-          </div>
+        <CardContent className="p-4">
+          {activities.length === 0 ? (
+            <div className="text-center py-8">
+              <Activity className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-500">No recent activity</p>
+              <p className="text-sm text-gray-400">Activities will appear here as they happen</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {activities.map((activity, index) => (
+                <MobileActivityItem
+                  key={activity.id || index}
+                  title={activity.title}
+                  description={activity.description}
+                  time={activity.time}
+                  type={activity.type}
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
 
-// Stat Card Component
-interface StatCardProps {
+// Mobile-First Stat Card Component
+interface MobileStatCardProps {
   title: string;
   value: string;
   icon: React.ElementType;
   color: "blue" | "cyan" | "green" | "orange";
+  subtitle?: string;
 }
 
-function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
+function MobileStatCard({ title, value, icon: Icon, color, subtitle }: MobileStatCardProps) {
   const colorClasses = {
     blue: "from-blue-500 to-blue-600",
     cyan: "from-cyan-500 to-cyan-600",
@@ -111,42 +188,54 @@ function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl p-5 border-0 shadow-lg">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className="text-gray-900">{value}</p>
-        </div>
-        <div className={`w-10 h-10 bg-gradient-to-br ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
+    <div className="bg-white rounded-2xl p-4 border-0 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
+      <div className="flex items-center justify-between mb-3">
+        <div className={`w-10 h-10 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center shadow-lg`}>
           <Icon className="w-5 h-5 text-white" />
         </div>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500 mb-1 line-clamp-1">{title}</p>
+        <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{value}</p>
+        {subtitle && <p className="text-xs text-gray-400">{subtitle}</p>}
       </div>
     </div>
   );
 }
 
-// Activity Item Component
-interface ActivityItemProps {
+// Mobile-Optimized Activity Item Component
+interface MobileActivityItemProps {
   title: string;
   description: string;
   time: string;
   type: "appointment" | "payment" | "patient" | "attendance";
 }
 
-function ActivityItem({ title, description, time, type }: ActivityItemProps) {
-  const colors = {
+function MobileActivityItem({ title, description, time, type }: MobileActivityItemProps) {
+  const iconColors = {
     appointment: "bg-blue-100 text-blue-600",
     payment: "bg-green-100 text-green-600",
     patient: "bg-purple-100 text-purple-600",
     attendance: "bg-orange-100 text-orange-600",
   };
 
+  const icons = {
+    appointment: Calendar,
+    payment: DollarSign,
+    patient: Users,
+    attendance: Clock,
+  };
+
+  const IconComponent = icons[type];
+
   return (
-    <div className="flex items-start gap-3">
-      <div className={`w-2 h-2 rounded-full mt-2 ${colors[type].replace('100', '500')}`} />
-      <div className="flex-1">
-        <p className="text-gray-900 text-sm">{title}</p>
-        <p className="text-xs text-gray-600">{description}</p>
+    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors active:scale-98">
+      <div className={`w-10 h-10 ${iconColors[type]} rounded-xl flex items-center justify-center flex-shrink-0`}>
+        <IconComponent className="w-4 h-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-900 line-clamp-1">{title}</p>
+        <p className="text-xs text-gray-600 line-clamp-1">{description}</p>
         <p className="text-xs text-gray-500 mt-0.5">{time}</p>
       </div>
     </div>
