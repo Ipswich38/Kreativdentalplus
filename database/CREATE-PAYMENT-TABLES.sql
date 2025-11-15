@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS payments (
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+)
 
 -- Create payment add-ons table (for additional services)
 CREATE TABLE IF NOT EXISTS payment_addons (

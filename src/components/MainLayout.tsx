@@ -1,41 +1,34 @@
 import { useState } from "react";
 import {
-  LayoutDashboard,
-  Calendar,
+  Heart,
   Users,
-  DollarSign,
-  Package,
-  Wallet,
-  Menu,
-  X,
-  Smile,
-  LogOut,
-  Bell,
+  Calendar,
+  FileText,
   Settings,
-  UserCog,
-  Activity
+  LogOut,
+  Plus,
+  Bell,
+  Search,
+  Activity,
+  DollarSign,
+  Clock,
+  TrendingUp,
+  ArrowLeft,
+  Home,
+  Package,
+  Wallet
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Badge } from "./ui/badge";
 import { NewAppointmentPage } from "./NewAppointmentPage";
 import { AppointmentsPage } from "./AppointmentsPage";
 import { PaymentsPage } from "./PaymentsPage";
 import { AppointmentStatusManager } from "./AppointmentStatusManager";
 import { DentistsPage } from "./DentistsPage";
 import { ProductionPayrollPage } from "./ProductionPayrollPage";
-import { SimplePayrollTest } from "./SimplePayrollTest";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
 import { ProductionFinancialPage } from "./ProductionFinancialPage";
 import { ProductionPatientPage } from "./ProductionPatientPage";
 import { ProductionAttendancePage } from "./ProductionAttendancePage";
 import { ProductionInventoryPage } from "./ProductionInventoryPage";
-import { AdminDashboard } from "./AdminDashboard";
-import { ITAdminDashboard } from "./ITAdminDashboard";
-import { DentistDashboard } from "./DentistDashboard";
-import { StaffDashboard } from "./StaffDashboard";
-import { ReceptionistDashboard } from "./ReceptionistDashboard";
-import { FrontDeskDashboard } from "./FrontDeskDashboard";
 import type { User } from "../data/users";
 
 type TabType = "dashboard" | "appointment" | "appointments-list" | "payments" | "appointment-status" | "dentists" | "patient-record" | "financial" | "service-catalog" | "kreativ-payroll" | "attendance" | "inventory";
@@ -64,28 +57,17 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
 
   // Define navigation items based on user role
   const getNavItems = () => {
-    // IT Admin gets special navigation (hidden from regular users)
-    if (currentUser.role === "it_admin") {
-      return [
-        { id: "dashboard" as TabType, label: "🔒 IT Control Center", icon: LayoutDashboard, roles: ["it_admin"] },
-        { id: "appointment" as TabType, label: "System Monitor", icon: Calendar, roles: ["it_admin"] },
-        { id: "appointments-list" as TabType, label: "User Activity", icon: Users, roles: ["it_admin"] },
-      ];
-    }
-
     const allItems = [
-      { id: "dashboard" as TabType, label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
+      { id: "dashboard" as TabType, label: "Dashboard", icon: Home, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
       { id: "appointment" as TabType, label: "Book Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
-      { id: "appointments-list" as TabType, label: "View Appointments", icon: Users, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      { id: "appointments-list" as TabType, label: "Appointments", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
       { id: "payments" as TabType, label: "Payments", icon: DollarSign, roles: ["admin", "receptionist", "front_desk"] },
       { id: "appointment-status" as TabType, label: "Patient Flow", icon: Activity, roles: ["admin", "receptionist", "front_desk"] },
-      { id: "dentists" as TabType, label: "Dentists", icon: UserCog, roles: ["admin"] },
-      { id: "patient-record" as TabType, label: "Patient Record", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
+      { id: "patient-record" as TabType, label: "Patients", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
       { id: "financial" as TabType, label: "Financial", icon: DollarSign, roles: ["admin"] },
-      { id: "service-catalog" as TabType, label: "Service Catalog", icon: Package, roles: ["admin", "dentist", "receptionist", "front_desk"] },
-      // kreativPayroll is EXCLUDED for front_desk users
-      { id: "kreativ-payroll" as TabType, label: "kreativPayroll", icon: Wallet, roles: ["admin", "dentist", "staff", "receptionist"] },
-      { id: "attendance" as TabType, label: "Attendance", icon: Users, roles: ["admin", "dentist", "staff"] },
+      { id: "service-catalog" as TabType, label: "Services", icon: FileText, roles: ["admin", "dentist", "receptionist", "front_desk"] },
+      { id: "kreativ-payroll" as TabType, label: "Payroll", icon: Wallet, roles: ["admin", "dentist", "staff", "receptionist"] },
+      { id: "attendance" as TabType, label: "Attendance", icon: Clock, roles: ["admin", "dentist", "staff"] },
       { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin", "front_desk", "dentist"] },
     ];
 
@@ -108,179 +90,287 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
     return currentUser.name.substring(0, 2).toUpperCase();
   };
 
-  return (
-    <div className="h-screen flex overflow-hidden bg-gray-50">
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+  // Mock data for dashboard metrics
+  const todayMetrics = {
+    appointments: 12,
+    newPatients: 3,
+    revenue: 2850,
+    occupancy: 85
+  };
 
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-teal-800 border-r border-teal-700
-          transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col sidebar-mobile ${sidebarOpen ? 'open' : ''}
-          overflow-y-auto overscroll-contain
-        `}
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        {/* Logo Section */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-teal-700">
+  const upcomingAppointments = [
+    { id: 1, time: "9:00 AM", patient: "Sarah Johnson", treatment: "Cleaning" },
+    { id: 2, time: "10:30 AM", patient: "Mike Chen", treatment: "Root Canal" },
+    { id: 3, time: "2:00 PM", patient: "Emily Davis", treatment: "Check-up" },
+  ];
+
+  const recentPatients = [
+    { id: 1, name: "Alice Brown", status: "Completed", time: "8:30 AM" },
+    { id: 2, name: "John Smith", status: "In Progress", time: "9:45 AM" },
+    { id: 3, name: "Maria Garcia", status: "Waiting", time: "10:15 AM" },
+  ];
+
+  return (
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Side Navigation Panel */}
+      <aside className="side-nav">
+        {/* Navigation Header */}
+        <div className="nav-header">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              currentUser.role === 'it_admin'
-                ? 'bg-red-600'
-                : 'bg-blue-600'
-            }`}>
-              <Smile className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-medium)'}}>
+              <Heart className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-white">
-                {currentUser.role === 'it_admin' ? 'IT Control' : 'kreativDental'}
-              </h2>
-              <p className="text-xs text-teal-300">
-                {currentUser.role === 'it_admin' ? 'Admin' : 'Plus'}
-              </p>
+              <h1 className="text-xl font-bold text-gray-900">KreativDental+</h1>
+              <p className="text-sm text-gray-600">Healthcare Management</p>
             </div>
           </div>
-          <button 
-            className="lg:hidden text-teal-300 hover:text-white"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
         {/* User Info */}
-        <div className="px-4 py-3 bg-teal-900 border-b border-teal-700">
+        <div style={{padding: '16px 24px', borderBottom: '1px solid var(--color-gray-200)'}}>
           <div className="flex items-center gap-3">
-            <Avatar className="w-10 h-10">
-              <AvatarFallback className="bg-blue-600 text-white">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-white truncate">{currentUser.name}</p>
-              <Badge className="bg-teal-600 text-white text-xs">
-                {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
-              </Badge>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{background: 'var(--color-blue-medium)'}}>
+              {currentUser.name.charAt(0)}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">{currentUser.name}</p>
+              <p className="text-sm text-gray-600">{currentUser.role}</p>
             </div>
           </div>
-          <p className="text-xs text-teal-300 mt-2">ID: {currentUser.employeeId}</p>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {/* Navigation Items */}
+        <div className="nav-content">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
-            const isKreativPayroll = item.id === "kreativ-payroll";
-            
+
             return (
               <button
                 key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`
-                  w-full flex items-center gap-3 px-3 py-3 md:py-2.5 rounded-lg
-                  transition-all duration-200 min-h-[48px] md:min-h-[auto]
-                  touch-feedback text-base md:text-sm
-                  ${isActive
-                    ? isKreativPayroll
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'bg-blue-600 text-white shadow-md'
-                    : isKreativPayroll
-                      ? 'bg-emerald-600 text-white border border-emerald-200 hover:bg-emerald-700'
-                      : 'text-teal-300 hover:bg-teal-700'
-                  }
-                `}
+                onClick={() => setActiveTab(item.id)}
+                className={`nav-item ${isActive ? 'active' : ''}`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 nav-icon" />
                 <span>{item.label}</span>
-                {isKreativPayroll && (
-                  <Badge className="ml-auto bg-emerald-600 text-white text-xs px-1.5 py-0.5">
-                    Payroll
-                  </Badge>
-                )}
               </button>
             );
           })}
-        </nav>
+        </div>
 
-        {/* Bottom Section */}
-        <div className="p-3 border-t border-teal-700 space-y-2">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-teal-300 hover:bg-teal-700 transition-colors">
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
-          <button 
+        {/* Logout Section */}
+        <div style={{padding: '16px', borderTop: '1px solid var(--color-gray-200)'}}>
+          <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-teal-700 transition-colors"
+            className="nav-item"
+            style={{color: 'var(--color-pink-medium)'}}
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 nav-icon" />
             <span>Logout</span>
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
+      {/* Main Content Area */}
+      <div className="main-content">
+        {/* Content Header */}
+        <div className="content-header">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Good morning, {currentUser.name.split(' ')[0]}</h2>
+            <p className="text-gray-600">Welcome back to your dashboard</p>
+          </div>
+
           <div className="flex items-center gap-4">
-            <button
-              className="lg:hidden text-gray-600 hover:text-gray-900 p-2 rounded-lg touch-feedback min-h-[44px] min-w-[44px] flex items-center justify-center"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <div>
-              <h1 className="text-gray-900">
-                {navItems.find(item => item.id === activeTab)?.label}
-              </h1>
-              <p className="text-sm text-gray-500 hidden sm:block">
-                {currentUser.position}
-              </p>
+            <div className="relative">
+              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search patients..."
+                className="input-modern pl-10 w-64"
+              />
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <button className="relative p-3 rounded-2xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </button>
-            <Avatar>
-              <AvatarFallback className="bg-blue-600 text-white">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
           </div>
-        </header>
+        </div>
 
-        {/* Page Content */}
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${activeTab === "kreativ-payroll" ? "bg-blue-50" : ""}`}>
+        {/* Content Body */}
+        <div className="content-body">
           {activeTab === "dashboard" && (
             <>
-              {console.log('Rendering dashboard for role:', currentUser.role)}
-              {currentUser.role === "it_admin" && <ITAdminDashboard currentUser={currentUser} />}
-              {currentUser.role === "admin" && <AdminDashboard currentUser={currentUser} />}
-              {currentUser.role === "dentist" && <DentistDashboard currentUser={currentUser} />}
-              {currentUser.role === "staff" && <StaffDashboard currentUser={currentUser} />}
-              {currentUser.role === "receptionist" && <ReceptionistDashboard currentUser={currentUser} />}
-              {currentUser.role === "front_desk" && <FrontDeskDashboard currentUser={currentUser} />}
+              {/* Welcome Section */}
+              <div className="welcome-section">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-3xl font-bold mb-2">How are you feeling today?</h3>
+                    <p className="welcome-text mb-6">Track your practice metrics and patient care</p>
+
+                    {/* Quick Actions */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setActiveTab("appointments-list")}
+                        className="quick-action"
+                      >
+                        Appointments
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("patient-record")}
+                        className="quick-action"
+                      >
+                        Patients
+                      </button>
+                      {currentUser.role === 'admin' && (
+                        <button
+                          onClick={() => setActiveTab("financial")}
+                          className="quick-action"
+                        >
+                          Reports
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Large Heart Icon */}
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center" style={{background: 'rgba(255, 255, 255, 0.1)'}}>
+                    <Heart className="w-12 h-12 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="metric-grid">
+                {/* Today's Appointments */}
+                <div className="metric-card metric-card-blue">
+                  <div className="flex items-center justify-between mb-4">
+                    <Calendar className="w-8 h-8" />
+                    <span className="text-sm font-medium">Today</span>
+                  </div>
+                  <div className="text-3xl font-bold mb-1">{todayMetrics.appointments}</div>
+                  <div className="text-sm opacity-90">Appointments</div>
+                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    +2 from yesterday
+                  </div>
+                </div>
+
+                {/* New Patients */}
+                <div className="metric-card metric-card-pink">
+                  <div className="flex items-center justify-between mb-4">
+                    <Users className="w-8 h-8" />
+                    <span className="text-sm font-medium">New</span>
+                  </div>
+                  <div className="text-3xl font-bold mb-1">{todayMetrics.newPatients}</div>
+                  <div className="text-sm opacity-90">New Patients</div>
+                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    This week
+                  </div>
+                </div>
+
+                {/* Revenue */}
+                <div className="metric-card metric-card-yellow">
+                  <div className="flex items-center justify-between mb-4">
+                    <DollarSign className="w-8 h-8" />
+                    <span className="text-sm font-medium">Revenue</span>
+                  </div>
+                  <div className="text-3xl font-bold mb-1">₱{todayMetrics.revenue.toLocaleString()}</div>
+                  <div className="text-sm opacity-90">Today's Total</div>
+                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit flex items-center" style={{background: 'rgba(0, 0, 0, 0.1)'}}>
+                    <TrendingUp className="w-3 h-3 inline mr-1" />
+                    +12% vs yesterday
+                  </div>
+                </div>
+
+                {/* Occupancy Rate */}
+                <div className="metric-card metric-card-green">
+                  <div className="flex items-center justify-between mb-4">
+                    <Activity className="w-8 h-8" />
+                    <span className="text-sm font-medium">Rate</span>
+                  </div>
+                  <div className="text-3xl font-bold mb-1">{todayMetrics.occupancy}%</div>
+                  <div className="text-sm opacity-90">Occupancy</div>
+                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
+                    Optimal level
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Grid */}
+              <div className="content-grid">
+                {/* Today's Schedule */}
+                <div className="bento-card">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Today's Schedule</h3>
+                    <button
+                      onClick={() => setActiveTab("appointments-list")}
+                      className="text-sm font-medium"
+                      style={{color: 'var(--color-blue-medium)'}}
+                    >
+                      View All
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {upcomingAppointments.map((appointment) => (
+                      <div key={appointment.id} className="flex items-center gap-4 p-4 rounded-2xl" style={{background: 'var(--color-gray-100)'}}>
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-light)'}}>
+                          <Clock className="w-6 h-6" style={{color: 'var(--color-blue-medium)'}} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{appointment.patient}</div>
+                          <div className="text-sm text-gray-600">{appointment.treatment}</div>
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">{appointment.time}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Patient Status */}
+                <div className="bento-card">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Patient Status</h3>
+                    <button
+                      onClick={() => setActiveTab("appointment-status")}
+                      className="text-sm font-medium"
+                      style={{color: 'var(--color-blue-medium)'}}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {recentPatients.map((patient) => (
+                      <div key={patient.id} className="flex items-center gap-4 p-4 rounded-2xl" style={{background: 'var(--color-gray-100)'}}>
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-pink-light)'}}>
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{background: 'var(--color-pink-medium)'}}>
+                            {patient.name.charAt(0)}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{patient.name}</div>
+                          <div className="text-sm text-gray-600">{patient.time}</div>
+                        </div>
+                        <span className={`badge ${
+                          patient.status === 'Completed' ? 'badge-green' :
+                          patient.status === 'In Progress' ? 'badge-blue' :
+                          'badge-yellow'
+                        }`}>
+                          {patient.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </>
           )}
-          {activeTab === "appointment" && (
-            currentUser.role === "it_admin" ? <ITAdminDashboard currentUser={currentUser} /> : <NewAppointmentPage />
-          )}
-          {activeTab === "appointments-list" && (
-            currentUser.role === "it_admin" ? <ITAdminDashboard currentUser={currentUser} /> : <AppointmentsPage />
-          )}
+
+          {/* Other Tab Content */}
+          {activeTab === "appointment" && <NewAppointmentPage />}
+          {activeTab === "appointments-list" && <AppointmentsPage />}
           {activeTab === "payments" && <PaymentsPage currentUser={currentUser} />}
           {activeTab === "appointment-status" && <AppointmentStatusManager />}
           {activeTab === "dentists" && <DentistsPage />}
@@ -290,8 +380,16 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "kreativ-payroll" && <ProductionPayrollPage currentUser={currentUser} />}
           {activeTab === "attendance" && <ProductionAttendancePage currentUser={currentUser} />}
           {activeTab === "inventory" && <ProductionInventoryPage currentUser={currentUser} />}
-        </main>
+        </div>
       </div>
+
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setActiveTab("appointment")}
+        className="fab"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   );
 }
