@@ -88,9 +88,9 @@ export function ProductionInventoryPage({ currentUser }: ProductionInventoryPage
     movement_date: new Date().toISOString().split('T')[0]
   });
 
-  // Permission checks
-  const canManageInventory = ['admin'].includes(currentUser.role);
-  const canViewInventory = ['admin', 'receptionist', 'staff'].includes(currentUser.role);
+  // Permission checks - Allow admin, front_desk, and dentist (including Dra. Camila) full CRUD access
+  const canManageInventory = ['admin', 'front_desk', 'dentist'].includes(currentUser.role);
+  const canViewInventory = ['admin', 'receptionist', 'staff', 'front_desk', 'dentist'].includes(currentUser.role);
 
   if (!canViewInventory) {
     return (

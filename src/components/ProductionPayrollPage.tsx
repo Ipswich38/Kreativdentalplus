@@ -60,7 +60,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
     staff_user_id: '' // Empty means all staff
   });
 
-  // Permission checks - more permissive for testing
+  // Permission checks - allow admin, dentist, and it_admin
   const canManagePayroll = ['admin', 'dentist', 'it_admin'].includes(currentUser.role);
   const canViewOwnPayroll = true;
 
@@ -123,12 +123,12 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       if (error) {
         console.error('Payroll query error:', error);
         if (error.message.includes('relation "payroll" does not exist')) {
-          toast.error('Payroll table not found. Please contact IT administrator to set up the database.');
+          toast.error('Payroll table not found. Please run the database setup script.');
           setPayrollRecords([]);
           return;
         }
         if (error.message.includes('column') && error.message.includes('does not exist')) {
-          toast.error('Payroll table structure needs updating. Please contact IT administrator.');
+          toast.error('Payroll table structure needs updating. Please run the database setup script.');
           setPayrollRecords([]);
           return;
         }
@@ -144,7 +144,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       setPayrollRecords(processedData);
     } catch (error: any) {
       console.error('Error fetching payroll:', error);
-      toast.error('Failed to load payroll records. Database may need setup.');
+      toast.error('Failed to load payroll records. Please check database setup.');
     } finally {
       setLoading(false);
     }
@@ -173,12 +173,12 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       if (attendanceError) {
         console.error('Attendance query error:', attendanceError);
         if (attendanceError.message.includes('relation "attendance" does not exist')) {
-          toast.error('Attendance table not found. Please contact IT administrator to set up the database.');
+          toast.error('Attendance table not found. Please run the database setup script.');
           setAttendanceSummary([]);
           return;
         }
         if (attendanceError.message.includes('column') && attendanceError.message.includes('does not exist')) {
-          toast.error('Attendance table structure needs updating. Please contact IT administrator.');
+          toast.error('Attendance table structure needs updating. Please run the database setup script.');
           setAttendanceSummary([]);
           return;
         }
@@ -378,36 +378,21 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
   // Load data on component mount
   useEffect(() => {
     console.log('ProductionPayrollPage mounting, fetching payroll records...');
-    try {
-      fetchPayrollRecords();
-    } catch (error) {
-      console.error('Error in initial fetchPayrollRecords:', error);
-    }
+    fetchPayrollRecords();
   }, []);
 
   // Refresh when period changes
   useEffect(() => {
     console.log('ProductionPayrollPage period/user changed, refetching...');
-    try {
-      fetchPayrollRecords();
-    } catch (error) {
-      console.error('Error in refresh fetchPayrollRecords:', error);
-    }
+    fetchPayrollRecords();
   }, [selectedPeriod, currentUser]);
 
-  // Add error boundary protection
-  try {
-    return (
-      <div className="space-y-6">
-        {/* Debug info */}
-        <div className="text-xs text-gray-500">
-          Debug: User role: {currentUser.role}, Can manage: {canManagePayroll.toString()}
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between">
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-emerald-800">KreativPayroll</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-blue-800">KreativPayroll</h2>
           <p className="text-muted-foreground">
             {canManagePayroll
               ? "Automated payroll processing and management"
@@ -420,7 +405,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
             <>
               <Dialog open={isGeneratePayrollOpen} onOpenChange={setIsGeneratePayrollOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
                     <Calculator className="mr-2 h-4 w-4" />
                     Generate Payroll
                   </Button>
@@ -564,7 +549,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">
+              <div className="text-2xl font-bold text-blue-600">
                 ₱{payrollRecords.reduce((sum, r) => sum + r.net_pay, 0).toLocaleString()}
               </div>
             </CardContent>
@@ -599,7 +584,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
             <div className="text-center py-8">Loading payroll records...</div>
           ) : payrollRecords.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No payroll records found
+              No payroll records found. Use "Generate Payroll" to create records.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -635,7 +620,7 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
                       <TableCell>{record.overtime_hours.toFixed(2)}h</TableCell>
                       <TableCell className="font-medium">₱{record.gross_pay.toFixed(2)}</TableCell>
                       <TableCell>₱{record.deductions.toFixed(2)}</TableCell>
-                      <TableCell className="font-bold text-emerald-600">
+                      <TableCell className="font-bold text-blue-600">
                         ₱{record.net_pay.toFixed(2)}
                       </TableCell>
                       <TableCell>
@@ -681,19 +666,4 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
       </Card>
     </div>
   );
-  } catch (error) {
-    console.error('Error rendering ProductionPayrollPage:', error);
-    return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-red-600">Payroll System Error</h2>
-        <p className="text-gray-600">There was an error loading the payroll page.</p>
-        <details className="mt-4">
-          <summary className="cursor-pointer">Error Details</summary>
-          <pre className="mt-2 p-2 bg-gray-100 text-xs overflow-auto">
-            {error instanceof Error ? error.stack : String(error)}
-          </pre>
-        </details>
-      </div>
-    );
-  }
 }

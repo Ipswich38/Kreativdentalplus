@@ -9,7 +9,7 @@ import { Badge } from "./ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Calendar, Clock, User, Plus, Search, Download } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
 
 interface AttendanceRecord {

@@ -86,7 +86,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       // kreativPayroll is EXCLUDED for front_desk users
       { id: "kreativ-payroll" as TabType, label: "kreativPayroll", icon: Wallet, roles: ["admin", "dentist", "staff", "receptionist"] },
       { id: "attendance" as TabType, label: "Attendance", icon: Users, roles: ["admin", "dentist", "staff"] },
-      { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin", "front_desk"] },
+      { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin", "front_desk", "dentist"] },
     ];
 
     return allItems.filter(item => item.roles.includes(currentUser.role));
@@ -135,8 +135,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
               currentUser.role === 'it_admin'
-                ? 'bg-gradient-to-br from-red-600 to-purple-800'
-                : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                ? 'bg-red-600'
+                : 'bg-blue-600'
             }`}>
               <Smile className="w-6 h-6 text-white" />
             </div>
@@ -158,16 +158,16 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </div>
 
         {/* User Info */}
-        <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+        <div className="px-4 py-3 bg-blue-50 border-b">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-blue-600 text-white">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-900 truncate">{currentUser.name}</p>
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+              <Badge className="bg-blue-600 text-white text-xs">
                 {currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}
               </Badge>
             </div>
@@ -192,8 +192,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
                   touch-feedback text-base md:text-sm
                   ${isActive
                     ? isKreativPayroll
-                      ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md'
-                      : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'bg-blue-600 text-white shadow-md'
                     : isKreativPayroll
                       ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200 hover:from-emerald-100 hover:to-green-100'
                       : 'text-gray-700 hover:bg-gray-100'
@@ -255,7 +255,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
             <Avatar>
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <AvatarFallback className="bg-blue-600 text-white">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
@@ -263,7 +263,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${activeTab === "kreativ-payroll" ? "bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50" : ""}`}>
+        <main className={`flex-1 overflow-y-auto p-4 lg:p-6 ${activeTab === "kreativ-payroll" ? "bg-blue-50" : ""}`}>
           {activeTab === "dashboard" && (
             <>
               {console.log('Rendering dashboard for role:', currentUser.role)}
@@ -287,7 +287,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
           {activeTab === "service-catalog" && <ServiceCatalogPage />}
-          {activeTab === "kreativ-payroll" && <SimplePayrollTest currentUser={currentUser} />}
+          {activeTab === "kreativ-payroll" && <ProductionPayrollPage currentUser={currentUser} />}
           {activeTab === "attendance" && <ProductionAttendancePage currentUser={currentUser} />}
           {activeTab === "inventory" && <ProductionInventoryPage currentUser={currentUser} />}
         </main>
