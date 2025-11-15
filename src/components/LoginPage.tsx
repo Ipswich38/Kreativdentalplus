@@ -14,7 +14,10 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { authenticateUser } = useSupabaseAuth();
+  const { authenticateUser, currentUser } = useSupabaseAuth();
+
+  // Debug logging
+  console.log('LoginPage - currentUser state:', currentUser);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
