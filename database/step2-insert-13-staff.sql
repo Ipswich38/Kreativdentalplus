@@ -29,25 +29,23 @@ INSERT INTO staff_users (
   updated_at
 ) VALUES
 
--- 1. OWNER/ADMIN (1 person)
-('OWN001', 'Dr. Camila Cañares-Price', 'owner@kreativdentalplus.com', '123456', 'admin', 'Owner & Clinical Director', 'General Dentistry', true, true, true, '{"all": true}', '{"owner_share": 0.45}', true, NOW() + INTERVAL '90 days', true, false, '2020-01-01', NOW(), 2500.00, NOW(), NOW()),
+-- 1. OWNER/ADMIN + DENTIST (1 person)
+('OWN001', 'Dra. Camila Cañares-Price', 'owner@kreativdentalplus.com', '123456', 'admin', 'Owner & Founder', 'General Dentist', true, true, true, '{"all": true}', '{"owner_share": 0.45}', true, NOW() + INTERVAL '90 days', true, false, '2020-01-01', NOW(), 2500.00, NOW(), NOW()),
 
--- 2-9. DENTISTS (8 dentists)
-('DEN001', 'Dr. Jerome Oh', 'jerome.oh@kreativdentalplus.com', '234567', 'dentist', 'Endodontics Specialist', 'Endodontics', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.35}', true, NOW() + INTERVAL '90 days', true, false, '2020-06-15', NOW(), 1800.00, NOW(), NOW()),
+-- 2-8. REAL DENTISTS (7 dentists)
+('DEN001', 'Dr. Jerome Oh', 'jerome.oh@kreativdentalplus.com', '234567', 'dentist', 'Oral Surgeon', 'Endodontics Specialist', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.40}', true, NOW() + INTERVAL '90 days', true, false, '2020-06-15', NOW(), 2000.00, NOW(), NOW()),
 
-('DEN002', 'Dr. Maria Santos', 'maria.santos@kreativdentalplus.com', '345678', 'dentist', 'Orthodontics Specialist', 'Orthodontics', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.35}', true, NOW() + INTERVAL '90 days', true, false, '2020-08-20', NOW(), 1750.00, NOW(), NOW()),
+('DEN002', 'Dra. Clency', 'clency@kreativdentalplus.com', '345678', 'dentist', 'Pediatric Dentist', 'Pediatric Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.35}', true, NOW() + INTERVAL '90 days', true, false, '2020-08-20', NOW(), 1800.00, NOW(), NOW()),
 
-('DEN003', 'Dr. Carlos Rodriguez', 'carlos.rodriguez@kreativdentalplus.com', '456789', 'dentist', 'Oral Surgeon', 'Oral Surgery', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.40}', true, NOW() + INTERVAL '90 days', true, false, '2021-02-10', NOW(), 1900.00, NOW(), NOW()),
+('DEN003', 'Dra. Fatima Porciuncula', 'fatima.porciuncula@kreativdentalplus.com', '456789', 'dentist', 'Orthodontist', 'Orthodontics', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.38}', true, NOW() + INTERVAL '90 days', true, false, '2021-02-10', NOW(), 1900.00, NOW(), NOW()),
 
-('DEN004', 'Dr. Patricia Lim', 'patricia.lim@kreativdentalplus.com', '567890', 'dentist', 'Pediatric Dentist', 'Pediatric Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.35}', true, NOW() + INTERVAL '90 days', true, false, '2021-05-15', NOW(), 1700.00, NOW(), NOW()),
+('DEN004', 'Dra. Fevi Stella Torralba-Pio', 'fevi.torralba@kreativdentalplus.com', '567890', 'dentist', 'General Dentist', 'General Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.32}', true, NOW() + INTERVAL '90 days', true, false, '2021-05-15', NOW(), 1700.00, NOW(), NOW()),
 
-('DEN005', 'Dr. Michael Chen', 'michael.chen@kreativdentalplus.com', '678901', 'dentist', 'Prosthodontics Specialist', 'Prosthodontics', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.38}', true, NOW() + INTERVAL '90 days', true, false, '2021-09-01', NOW(), 1850.00, NOW(), NOW()),
+('DEN005', 'Dr. Jonathan Pineda', 'jonathan.pineda@kreativdentalplus.com', '678901', 'dentist', 'TMJ Specialist', 'TMJ Specialist', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.42}', true, NOW() + INTERVAL '90 days', true, false, '2021-09-01', NOW(), 2100.00, NOW(), NOW()),
 
-('DEN006', 'Dr. Sarah Johnson', 'sarah.johnson@kreativdentalplus.com', '789012', 'dentist', 'General Dentist', 'General Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.32}', true, NOW() + INTERVAL '90 days', true, false, '2022-01-15', NOW(), 1650.00, NOW(), NOW()),
+('DEN006', 'Dr. Felipe Supilana', 'felipe.supilana@kreativdentalplus.com', '789012', 'dentist', 'Dental Implant Specialist', 'Dental Implant Specialist', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.45}', true, NOW() + INTERVAL '90 days', true, false, '2022-01-15', NOW(), 2200.00, NOW(), NOW()),
 
-('DEN007', 'Dr. Robert Kim', 'robert.kim@kreativdentalplus.com', '890123', 'dentist', 'Periodontics Specialist', 'Periodontics', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.36}', true, NOW() + INTERVAL '90 days', true, false, '2022-06-10', NOW(), 1800.00, NOW(), NOW()),
-
-('DEN008', 'Dr. Elena Martinez', 'elena.martinez@kreativdentalplus.com', '901234', 'dentist', 'Cosmetic Dentist', 'Cosmetic Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.35}', true, NOW() + INTERVAL '90 days', true, false, '2023-03-20', NOW(), 1750.00, NOW(), NOW()),
+('DEN007', 'Dra. Shirley Bayog', 'shirley.bayog@kreativdentalplus.com', '890123', 'dentist', 'Cosmetic Dentist', 'Cosmetic Dentistry', true, false, false, '{"appointments": true, "patients": true, "own_data": true}', '{"treatment_rate": 0.40}', true, NOW() + INTERVAL '90 days', true, false, '2022-06-10', NOW(), 1950.00, NOW(), NOW()),
 
 -- 10-12. STAFF (3 staff members - these have access to their payroll)
 ('STF001', 'Ms. Jezel Roche', 'jezel.roche@kreativdentalplus.com', '111222', 'staff', 'Senior Dental Assistant', null, false, false, false, '{"appointments": "view", "patients": "view", "own_data": true, "payroll": true}', '{"assist_rate": 0.05}', true, NOW() + INTERVAL '90 days', true, false, '2020-03-15', NOW(), 850.00, NOW(), NOW()),
