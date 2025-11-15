@@ -17,14 +17,14 @@ import {
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { EnhancedAppointmentPage } from "./EnhancedAppointmentPage";
+import { ProductionAppointmentPage } from "./ProductionAppointmentPage";
 import { DentistsPage } from "./DentistsPage";
-import { KreativPayrollPage } from "./KreativPayrollPage";
+import { ProductionPayrollPage } from "./ProductionPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
-import { FinancialPage } from "./FinancialPage";
-import { PatientRecordPage } from "./PatientRecordPage";
-import { AttendancePage } from "./AttendancePage";
-import { InventoryPage } from "./InventoryPage";
+import { ProductionFinancialPage } from "./ProductionFinancialPage";
+import { ProductionPatientPage } from "./ProductionPatientPage";
+import { ProductionAttendancePage } from "./ProductionAttendancePage";
+import { ProductionInventoryPage } from "./ProductionInventoryPage";
 import { AdminDashboard } from "./AdminDashboard";
 import { DentistDashboard } from "./DentistDashboard";
 import { StaffDashboard } from "./StaffDashboard";
@@ -237,14 +237,14 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               {currentUser.role === "receptionist" && <ReceptionistDashboard currentUser={currentUser} />}
             </>
           )}
-          {activeTab === "appointment" && <EnhancedAppointmentPage currentUser={currentUser} />}
+          {activeTab === "appointment" && <ProductionAppointmentPage currentUser={currentUser} />}
           {activeTab === "dentists" && <DentistsPage />}
-          {activeTab === "patient-record" && <PatientRecordPage />}
-          {activeTab === "financial" && <FinancialPage />}
+          {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
+          {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
           {activeTab === "service-catalog" && <ServiceCatalogPage />}
-          {activeTab === "kreativ-payroll" && <KreativPayrollPage />}
-          {activeTab === "attendance" && <AttendancePage />}
-          {activeTab === "inventory" && <InventoryPage />}
+          {activeTab === "kreativ-payroll" && <ProductionPayrollPage currentUser={currentUser} />}
+          {activeTab === "attendance" && <ProductionAttendancePage currentUser={currentUser} />}
+          {activeTab === "inventory" && <ProductionInventoryPage currentUser={currentUser} />}
         </main>
       </div>
     </div>

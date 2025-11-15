@@ -3,28 +3,18 @@ import { LoginPage } from "./components/LoginPage";
 import { MainLayout } from "./components/MainLayout";
 import type { User } from "./data/users";
 import { Toaster } from "sonner@2.0.3";
+import { useSupabaseAuth } from "./hooks/useSupabaseAuth";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  const handleLogin = (user: User) => {
-    setCurrentUser(user);
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setIsLoggedIn(false);
-  };
+  const { currentUser, logout } = useSupabaseAuth();
 
   return (
     <>
       <Toaster position="top-right" richColors />
-      {!isLoggedIn || !currentUser ? (
-        <LoginPage onLogin={handleLogin} />
+      {!currentUser ? (
+        <LoginPage />
       ) : (
-        <MainLayout currentUser={currentUser} onLogout={handleLogout} />
+        <MainLayout currentUser={currentUser} onLogout={logout} />
       )}
     </>
   );

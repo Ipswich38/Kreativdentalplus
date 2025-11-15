@@ -4,50 +4,44 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Smile, Lock, UserCircle, AlertCircle } from "lucide-react";
-import { authenticateUser, updateLastLogin, type User } from "../data/users";
 import { toast } from "sonner@2.0.3";
 import { Alert, AlertDescription } from "./ui/alert";
+import { useSupabaseAuth } from "../hooks/useSupabaseAuth";
 
-interface LoginPageProps {
-  onLogin: (user: User) => void;
-}
-
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage() {
   const [employeeId, setEmployeeId] = useState("");
   const [passcode, setPasscode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const { authenticateUser } = useSupabaseAuth();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Simulate a brief loading state for better UX
-    setTimeout(() => {
-      const user = authenticateUser(employeeId, passcode);
-      
+    try {
+      const { user, error } = await authenticateUser(employeeId, passcode);
+
       if (user) {
-        updateLastLogin(employeeId);
-        
         // Check if passcode needs to be changed
-        const passcodeAge = Math.floor(
-          (new Date().getTime() - new Date(user.passcodeSetDate).getTime()) / (1000 * 60 * 60 * 24)
-        );
-        
-        if (passcodeAge > 30 && user.mustChangePasscode) {
+        if (user.mustChangePasscode) {
           toast.warning("Your passcode has expired. Please change it after logging in.");
         }
-        
+
         toast.success(`Welcome back, ${user.name}!`);
-        onLogin(user);
+        // User is automatically set in useSupabaseAuth hook
       } else {
-        setError("Invalid Employee ID or Passcode");
+        setError(error || "Invalid Employee ID or Passcode");
         toast.error("Login failed. Please check your credentials.");
       }
-      
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+      toast.error("Login failed. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   return (
