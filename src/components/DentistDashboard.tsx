@@ -50,7 +50,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
   return (
     <div className="space-y-4 px-4 sm:px-6 lg:px-0">
       {/* Mobile-First Welcome Message */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-6 text-white">
+      <div className="bg-blue-600 rounded-2xl p-6 text-white">
         <h2 className="text-xl sm:text-2xl font-bold mb-2">Welcome, {currentUser.name}</h2>
         <p className="text-green-100 text-sm sm:text-base">{currentUser.position}</p>
         <div className="flex items-center gap-2 mt-3">
@@ -69,7 +69,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
 
       {/* Mobile-Optimized Today's Schedule */}
       <Card className="border-0 shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-green-50 rounded-t-lg">
+        <CardHeader className="border-b bg-blue-50 rounded-t-lg">
           <CardTitle className="text-lg flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-600" />
             Today's Schedule
@@ -85,7 +85,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
           ) : (
             <div className="space-y-3">
               {todayAppointments.map((appointment, index) => (
-                <div key={appointment.id || index} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl hover:shadow-md transition-all active:scale-98">
+                <div key={appointment.id || index} className="flex items-center justify-between p-4 bg-blue-50 rounded-xl hover:shadow-md transition-all active:scale-98">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="bg-white rounded-lg p-2 shadow-sm">
                       <p className="text-sm font-medium text-gray-900">{appointment.time}</p>
@@ -113,7 +113,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
 
       {/* Mobile-First Performance Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+        <Card className="border-0 shadow-lg bg-blue-50">
           <CardHeader className="border-b bg-white/50">
             <CardTitle className="text-lg flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-green-600" />
@@ -132,7 +132,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+        <Card className="border-0 shadow-lg bg-blue-50">
           <CardHeader className="border-b bg-white/50">
             <CardTitle className="text-lg flex items-center gap-2">
               <Activity className="w-5 h-5 text-blue-600" />
@@ -156,7 +156,7 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
 
       {/* Mobile-Optimized Quick Actions */}
       <Card className="border-0 shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-pink-50 rounded-t-lg">
+        <CardHeader className="border-b bg-blue-50 rounded-t-lg">
           <CardTitle className="text-lg flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-purple-600" />
             Quick Actions
@@ -164,22 +164,22 @@ export function DentistDashboard({ currentUser }: DentistDashboardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <button className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
+            <button className="p-4 bg-blue-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
               <Calendar className="w-8 h-8 text-blue-600 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900">Schedule</p>
               <p className="text-xs text-gray-500">View appointments</p>
             </button>
-            <button className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
+            <button className="p-4 bg-blue-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
               <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900">Patients</p>
               <p className="text-xs text-gray-500">Manage records</p>
             </button>
-            <button className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
+            <button className="p-4 bg-blue-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
               <DollarSign className="w-8 h-8 text-purple-600 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900">Earnings</p>
               <p className="text-xs text-gray-500">View reports</p>
             </button>
-            <button className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
+            <button className="p-4 bg-blue-50 rounded-2xl hover:shadow-lg transition-all active:scale-95 text-center">
               <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900">Attendance</p>
               <p className="text-xs text-gray-500">Clock in/out</p>
@@ -202,16 +202,16 @@ interface MobileStatCardProps {
 
 function MobileStatCard({ title, value, icon: Icon, color, subtitle }: MobileStatCardProps) {
   const colorClasses = {
-    blue: "from-blue-500 to-blue-600",
-    cyan: "from-cyan-500 to-cyan-600",
-    green: "from-green-500 to-emerald-600",
-    purple: "from-purple-500 to-pink-500",
+    blue: "bg-blue-600",
+    cyan: "bg-blue-600",
+    green: "bg-blue-600",
+    purple: "bg-blue-600",
   };
 
   return (
     <div className="bg-white rounded-2xl p-4 border-0 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
       <div className="flex items-center justify-between mb-3">
-        <div className={`w-10 h-10 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center shadow-lg`}>
+        <div className={`w-10 h-10 ${colorClasses[color]} rounded-xl flex items-center justify-center shadow-lg`}>
           <Icon className="w-5 h-5 text-white" />
         </div>
       </div>

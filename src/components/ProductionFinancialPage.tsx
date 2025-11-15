@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
 
 interface PaymentTransaction {

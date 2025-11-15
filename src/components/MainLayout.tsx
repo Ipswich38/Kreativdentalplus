@@ -195,7 +195,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
                       ? 'bg-emerald-600 text-white shadow-md'
                       : 'bg-blue-600 text-white shadow-md'
                     : isKreativPayroll
-                      ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200 hover:from-emerald-100 hover:to-green-100'
+                      ? 'bg-emerald-600 text-white border border-emerald-200 hover:bg-emerald-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }
                 `}

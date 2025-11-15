@@ -60,7 +60,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo and Header */}
         <div className="text-center mb-8">
@@ -147,7 +147,7 @@ export function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 touch-feedback min-h-[48px] text-base font-medium"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white touch-feedback min-h-[48px] text-base font-medium"
                 disabled={isLoading || employeeId.length === 0 || passcode.length !== 6}
                 style={{ fontSize: '16px' }}
               >

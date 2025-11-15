@@ -47,6 +47,22 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [isNewAttendanceOpen, setIsNewAttendanceOpen] = useState(false);
+  const [componentError, setComponentError] = useState<string | null>(null);
+
+  console.log('=== ProductionAttendancePage COMPONENT RENDERING ===');
+  console.log('currentUser:', currentUser);
+
+  // Component-level error boundary
+  if (componentError) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold tracking-tight text-red-600">Attendance Page Error</h2>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Component Error:</strong> {componentError}
+        </div>
+      </div>
+    );
+  }
 
   const [newAttendance, setNewAttendance] = useState({
     staff_user_id: '',
@@ -256,17 +272,32 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
 
   // Load data on component mount
   useEffect(() => {
-    fetchStaffUsers();
-    fetchAttendanceRecords();
+    console.log('=== ProductionAttendancePage useEffect - INITIAL LOAD ===');
+    try {
+      fetchStaffUsers();
+      fetchAttendanceRecords();
+    } catch (error: any) {
+      console.error('Error in initial useEffect:', error);
+      setComponentError(`Initial load error: ${error.message}`);
+    }
   }, []);
 
   // Refresh when filters change
   useEffect(() => {
-    fetchAttendanceRecords();
+    console.log('=== ProductionAttendancePage useEffect - FILTER CHANGE ===');
+    try {
+      fetchAttendanceRecords();
+    } catch (error: any) {
+      console.error('Error in filter useEffect:', error);
+      setComponentError(`Filter update error: ${error.message}`);
+    }
   }, [selectedDate, selectedStaff, currentUser]);
 
-  return (
-    <div className="space-y-6">
+  try {
+    console.log('=== ProductionAttendancePage RENDER START ===');
+
+    return (
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -580,5 +611,16 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
         </CardContent>
       </Card>
     </div>
-  );
+    );
+  } catch (error: any) {
+    console.error('=== ProductionAttendancePage RENDER ERROR ===', error);
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold tracking-tight text-red-600">Attendance Page Render Error</h2>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Render Error:</strong> {error.message}
+        </div>
+      </div>
+    );
+  }
 }

@@ -53,7 +53,7 @@ export function AdminDashboard({ currentUser }: AdminDashboardProps) {
   return (
     <div className="space-y-4 px-4 sm:px-6 lg:px-0">
       {/* Mobile-First Welcome Message */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+      <div className="bg-blue-600 rounded-2xl p-6 text-white">
         <h2 className="text-xl sm:text-2xl font-bold mb-2">Welcome back, {currentUser.name}</h2>
         <p className="text-blue-100 text-sm sm:text-base">System Administrator • Full Access</p>
         <div className="flex items-center gap-2 mt-3">
@@ -96,7 +96,7 @@ export function AdminDashboard({ currentUser }: AdminDashboardProps) {
 
       {/* Mobile-First System Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+        <Card className="border-0 shadow-lg bg-blue-50">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="w-5 h-5 text-blue-600" />
@@ -109,7 +109,7 @@ export function AdminDashboard({ currentUser }: AdminDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+        <Card className="border-0 shadow-lg bg-blue-50">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="w-5 h-5 text-green-600" />
@@ -122,7 +122,7 @@ export function AdminDashboard({ currentUser }: AdminDashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 sm:col-span-2 lg:col-span-1">
+        <Card className="border-0 shadow-lg bg-blue-50 sm:col-span-2 lg:col-span-1">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-purple-600" />
@@ -181,16 +181,16 @@ interface MobileStatCardProps {
 
 function MobileStatCard({ title, value, icon: Icon, color, subtitle }: MobileStatCardProps) {
   const colorClasses = {
-    blue: "from-blue-500 to-blue-600",
-    cyan: "from-cyan-500 to-cyan-600",
-    green: "from-green-500 to-emerald-600",
-    orange: "from-orange-500 to-amber-600",
+    blue: "bg-blue-600",
+    cyan: "bg-blue-600",
+    green: "bg-blue-600",
+    orange: "bg-blue-600",
   };
 
   return (
     <div className="bg-white rounded-2xl p-4 border-0 shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
       <div className="flex items-center justify-between mb-3">
-        <div className={`w-10 h-10 bg-gradient-to-br ${colorClasses[color]} rounded-xl flex items-center justify-center shadow-lg`}>
+        <div className={`w-10 h-10 ${colorClasses[color]} rounded-xl flex items-center justify-center shadow-lg`}>
           <Icon className="w-5 h-5 text-white" />
         </div>
       </div>
