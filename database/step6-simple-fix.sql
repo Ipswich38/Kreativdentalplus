@@ -1,10 +1,40 @@
--- STEP 3: CREATE PRODUCTION TABLES
--- Run this to create all the necessary tables for the dental management system
+-- STEP 6: SIMPLE DATABASE FIX
+-- Clean and simple approach to fix all database issues
 
--- First, let's check what tables already exist and add missing columns
+-- First, let's see what currently exists
+SELECT 'Current tables:' as info;
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+AND table_name IN ('services', 'inventory', 'patients', 'appointments', 'staff_users')
+ORDER BY table_name;
 
--- 1. PATIENTS TABLE
-CREATE TABLE IF NOT EXISTS patients (
+-- Drop problematic tables (this will cascade properly)
+DROP TABLE IF EXISTS appointments CASCADE;
+DROP TABLE IF EXISTS financial_transactions CASCADE;
+DROP TABLE IF EXISTS attendance CASCADE;
+DROP TABLE IF EXISTS payroll CASCADE;
+DROP TABLE IF EXISTS inventory CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+DROP TABLE IF EXISTS patients CASCADE;
+
+-- Create services table
+CREATE TABLE services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  service_code VARCHAR(20) UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100) NOT NULL,
+  duration_minutes INTEGER DEFAULT 60,
+  base_price DECIMAL(10,2) NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  requires_dentist BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create patients table
+CREATE TABLE patients (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_number VARCHAR(20) UNIQUE NOT NULL,
   first_name VARCHAR(100) NOT NULL,
@@ -23,84 +53,29 @@ CREATE TABLE IF NOT EXISTS patients (
   notes TEXT,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by UUID REFERENCES staff_users(id)
-);
-
--- 2. SERVICES TABLE
-CREATE TABLE IF NOT EXISTS services (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  service_code VARCHAR(20) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  category VARCHAR(100) NOT NULL,
-  duration_minutes INTEGER NOT NULL DEFAULT 60,
-  base_price DECIMAL(10,2) NOT NULL,
-  is_active BOOLEAN DEFAULT true,
-  requires_dentist BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. APPOINTMENTS TABLE
-CREATE TABLE IF NOT EXISTS appointments (
+-- Create appointments table
+CREATE TABLE appointments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   appointment_number VARCHAR(50) UNIQUE NOT NULL,
-  patient_id UUID NOT NULL REFERENCES patients(id),
-  dentist_id UUID NOT NULL REFERENCES staff_users(id),
-  service_id UUID NOT NULL REFERENCES services(id),
+  patient_id UUID REFERENCES patients(id),
+  dentist_id UUID REFERENCES staff_users(id),
+  service_id UUID REFERENCES services(id),
   appointment_date DATE NOT NULL,
   appointment_time TIME NOT NULL,
   end_time TIME,
   room_number INTEGER,
-  status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show')),
+  status VARCHAR(20) DEFAULT 'scheduled',
   notes TEXT,
   total_amount DECIMAL(10,2),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by UUID REFERENCES staff_users(id)
-);
-
--- 4. ATTENDANCE TABLE
-CREATE TABLE IF NOT EXISTS attendance (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  staff_id UUID NOT NULL REFERENCES staff_users(id),
-  clock_in_time TIMESTAMP WITH TIME ZONE NOT NULL,
-  clock_out_time TIMESTAMP WITH TIME ZONE,
-  break_start_time TIMESTAMP WITH TIME ZONE,
-  break_end_time TIMESTAMP WITH TIME ZONE,
-  total_hours DECIMAL(5,2),
-  overtime_hours DECIMAL(5,2) DEFAULT 0,
-  notes TEXT,
-  status VARCHAR(20) DEFAULT 'present' CHECK (status IN ('present', 'absent', 'late', 'sick', 'vacation')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 5. PAYROLL TABLE
-CREATE TABLE IF NOT EXISTS payroll (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  staff_id UUID NOT NULL REFERENCES staff_users(id),
-  pay_period_start DATE NOT NULL,
-  pay_period_end DATE NOT NULL,
-  total_hours DECIMAL(5,2) NOT NULL,
-  overtime_hours DECIMAL(5,2) DEFAULT 0,
-  base_pay DECIMAL(10,2) NOT NULL,
-  overtime_pay DECIMAL(10,2) DEFAULT 0,
-  commission DECIMAL(10,2) DEFAULT 0,
-  bonus DECIMAL(10,2) DEFAULT 0,
-  deductions DECIMAL(10,2) DEFAULT 0,
-  gross_pay DECIMAL(10,2) NOT NULL,
-  net_pay DECIMAL(10,2) NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'paid')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  approved_by UUID REFERENCES staff_users(id),
-  approved_at TIMESTAMP WITH TIME ZONE
-);
-
--- 6. INVENTORY TABLE
-CREATE TABLE IF NOT EXISTS inventory (
+-- Create inventory table
+CREATE TABLE inventory (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   item_code VARCHAR(50) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -118,11 +93,49 @@ CREATE TABLE IF NOT EXISTS inventory (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 7. FINANCIAL_TRANSACTIONS TABLE
-CREATE TABLE IF NOT EXISTS financial_transactions (
+-- Create attendance table
+CREATE TABLE attendance (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_id UUID REFERENCES staff_users(id),
+  clock_in_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  clock_out_time TIMESTAMP WITH TIME ZONE,
+  break_start_time TIMESTAMP WITH TIME ZONE,
+  break_end_time TIMESTAMP WITH TIME ZONE,
+  total_hours DECIMAL(5,2),
+  overtime_hours DECIMAL(5,2) DEFAULT 0,
+  notes TEXT,
+  status VARCHAR(20) DEFAULT 'present',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create payroll table
+CREATE TABLE payroll (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_id UUID REFERENCES staff_users(id),
+  pay_period_start DATE NOT NULL,
+  pay_period_end DATE NOT NULL,
+  total_hours DECIMAL(5,2) NOT NULL,
+  overtime_hours DECIMAL(5,2) DEFAULT 0,
+  base_pay DECIMAL(10,2) NOT NULL,
+  overtime_pay DECIMAL(10,2) DEFAULT 0,
+  commission DECIMAL(10,2) DEFAULT 0,
+  bonus DECIMAL(10,2) DEFAULT 0,
+  deductions DECIMAL(10,2) DEFAULT 0,
+  gross_pay DECIMAL(10,2) NOT NULL,
+  net_pay DECIMAL(10,2) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  approved_by UUID REFERENCES staff_users(id),
+  approved_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Create financial transactions table
+CREATE TABLE financial_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   transaction_number VARCHAR(50) UNIQUE NOT NULL,
-  type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
+  type VARCHAR(20) NOT NULL,
   category VARCHAR(100) NOT NULL,
   amount DECIMAL(10,2) NOT NULL,
   description TEXT,
@@ -131,13 +144,12 @@ CREATE TABLE IF NOT EXISTS financial_transactions (
   staff_id UUID REFERENCES staff_users(id),
   transaction_date DATE NOT NULL,
   payment_method VARCHAR(50),
-  status VARCHAR(20) DEFAULT 'completed' CHECK (status IN ('pending', 'completed', 'cancelled')),
+  status VARCHAR(20) DEFAULT 'completed',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by UUID REFERENCES staff_users(id)
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- INSERT SAMPLE SERVICES
+-- Insert sample services
 INSERT INTO services (service_code, name, description, category, duration_minutes, base_price, requires_dentist) VALUES
 ('CLN001', 'Regular Cleaning', 'Routine dental cleaning and checkup', 'Preventive', 45, 150.00, false),
 ('FIL001', 'Tooth Filling', 'Composite tooth filling', 'Restorative', 60, 250.00, true),
@@ -150,7 +162,7 @@ INSERT INTO services (service_code, name, description, category, duration_minute
 ('CHK001', 'General Checkup', 'Routine dental examination', 'Preventive', 30, 100.00, true),
 ('XRA001', 'X-Ray', 'Dental X-ray imaging', 'Diagnostic', 15, 75.00, false);
 
--- INSERT SAMPLE PATIENTS
+-- Insert sample patients
 INSERT INTO patients (patient_number, first_name, last_name, date_of_birth, gender, phone, email, address) VALUES
 ('PAT001', 'John', 'Doe', '1985-05-15', 'Male', '+639171234567', 'john.doe@email.com', '123 Main St, Quezon City'),
 ('PAT002', 'Jane', 'Smith', '1990-08-22', 'Female', '+639181234567', 'jane.smith@email.com', '456 Oak Ave, Makati City'),
@@ -163,7 +175,7 @@ INSERT INTO patients (patient_number, first_name, last_name, date_of_birth, gend
 ('PAT009', 'Christopher', 'Taylor', '1987-09-08', 'Male', '+639251234567', 'chris.taylor@email.com', '369 Willow Rd, Greenhills'),
 ('PAT010', 'Amanda', 'Anderson', '1991-06-12', 'Female', '+639261234567', 'amanda.anderson@email.com', '741 Ash St, San Juan');
 
--- INSERT SAMPLE INVENTORY ITEMS
+-- Insert sample inventory
 INSERT INTO inventory (item_code, name, description, category, unit_of_measure, current_stock, minimum_stock, unit_cost, supplier) VALUES
 ('DEN001', 'Disposable Gloves', 'Latex-free disposable gloves', 'Safety', 'boxes', 50, 10, 25.00, 'Medical Supplies Inc'),
 ('DEN002', 'Face Masks', 'Surgical face masks', 'Safety', 'boxes', 30, 5, 15.00, 'Safety First Co'),
@@ -176,49 +188,35 @@ INSERT INTO inventory (item_code, name, description, category, unit_of_measure, 
 ('DEN009', 'Sterilization Pouches', 'Autoclave sterilization pouches', 'Safety', 'boxes', 45, 8, 35.00, 'Sterilize Pro'),
 ('DEN010', 'Fluoride Treatment', 'Professional fluoride gel', 'Materials', 'tubes', 28, 5, 40.00, 'Preventive Care Co');
 
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
-CREATE INDEX IF NOT EXISTS idx_appointments_dentist ON appointments(dentist_id);
-CREATE INDEX IF NOT EXISTS idx_appointments_patient ON appointments(patient_id);
-CREATE INDEX IF NOT EXISTS idx_attendance_staff ON attendance(staff_id);
-CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(clock_in_time);
-CREATE INDEX IF NOT EXISTS idx_payroll_staff ON payroll(staff_id);
-CREATE INDEX IF NOT EXISTS idx_patients_phone ON patients(phone);
-CREATE INDEX IF NOT EXISTS idx_transactions_date ON financial_transactions(transaction_date);
+-- Create indexes for performance
+CREATE INDEX idx_appointments_date ON appointments(appointment_date);
+CREATE INDEX idx_appointments_dentist ON appointments(dentist_id);
+CREATE INDEX idx_appointments_patient ON appointments(patient_id);
+CREATE INDEX idx_attendance_staff ON attendance(staff_id);
+CREATE INDEX idx_payroll_staff ON payroll(staff_id);
+CREATE INDEX idx_patients_phone ON patients(phone);
+CREATE INDEX idx_transactions_date ON financial_transactions(transaction_date);
 
--- Enable RLS (Row Level Security) on all tables
-ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payroll ENABLE ROW LEVEL SECURITY;
-ALTER TABLE inventory ENABLE ROW LEVEL SECURITY;
-ALTER TABLE financial_transactions ENABLE ROW LEVEL SECURITY;
+-- Show final verification
+SELECT 'Tables created successfully:' as status;
 
--- Create RLS policies (basic access for authenticated users)
-CREATE POLICY "Allow authenticated users to view patients" ON patients FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to insert patients" ON patients FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to update patients" ON patients FOR UPDATE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users to view services" ON services FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to view appointments" ON appointments FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to insert appointments" ON appointments FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to update appointments" ON appointments FOR UPDATE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users to view attendance" ON attendance FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to insert attendance" ON attendance FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to update attendance" ON attendance FOR UPDATE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users to view payroll" ON payroll FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to view inventory" ON inventory FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to update inventory" ON inventory FOR UPDATE USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated users to view transactions" ON financial_transactions FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated users to insert transactions" ON financial_transactions FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-
--- Verify tables were created
-SELECT table_name, table_type
-FROM information_schema.tables
+SELECT
+  table_name,
+  (SELECT count(*) FROM information_schema.columns WHERE table_name = t.table_name) as column_count
+FROM information_schema.tables t
 WHERE table_schema = 'public'
-AND table_name IN ('patients', 'services', 'appointments', 'attendance', 'payroll', 'inventory', 'financial_transactions')
+AND table_name IN ('patients', 'services', 'appointments', 'attendance', 'payroll', 'inventory', 'financial_transactions', 'staff_users')
 ORDER BY table_name;
+
+-- Show data counts
+SELECT 'Sample data inserted:' as status;
+
+SELECT 'patients' as table_name, count(*) as record_count FROM patients
+UNION ALL
+SELECT 'services', count(*) FROM services
+UNION ALL
+SELECT 'inventory', count(*) FROM inventory
+UNION ALL
+SELECT 'staff_users', count(*) FROM staff_users;
+
+SELECT 'Database setup complete! Ready for dental management system.' as final_status;
