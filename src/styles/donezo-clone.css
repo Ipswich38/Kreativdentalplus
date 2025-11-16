@@ -1616,7 +1616,7 @@ body {
     color: #1d4ed8;
     margin-bottom: 16px;
 }
-`;
+
 /* From AppointmentsPage.tsx */
 .donezo-select {
     padding: 12px 16px;
@@ -2458,4 +2458,3 @@ body {
     color: #1d4ed8;
     margin-bottom: 16px;
 }
-`;
