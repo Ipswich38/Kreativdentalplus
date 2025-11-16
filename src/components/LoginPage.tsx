@@ -28,39 +28,36 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md mx-auto">
         {/* Header with Logo */}
-        <div className="page-header text-center border-0 bg-transparent">
-          <div className="w-full">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-pink-400 rounded-2xl flex items-center justify-center">
-              <Heart className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              KreativDental+
-            </h1>
-            <p className="text-gray-600">
-              Welcome back! Please sign in to continue
-            </p>
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+            <Heart className="w-8 h-8 text-white" />
           </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">
+            KreativDental+
+          </h1>
+          <p className="text-lg text-gray-600">
+            Welcome back! Please sign in to continue
+          </p>
         </div>
 
         {/* Login Form */}
-        <div className="page-content">
-          <div className="card-modern p-8">
-            <form onSubmit={handleLogin} className="space-y-6">
+        <div className="card-bento mb-6">
+          <form onSubmit={handleLogin} className="space-y-6">
               {/* Employee ID Input */}
-              <div className="form-group">
-                <label className="form-label">Employee ID</label>
+              <div className="space-y-2">
+                <label className="label-bento">Employee ID</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type="text"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
-                    className="input-modern pl-10"
+                    className="input-bento pl-12"
                     placeholder="Enter your Employee ID"
                     disabled={isLoading}
                   />
@@ -68,24 +65,24 @@ export function LoginPage() {
               </div>
 
               {/* Passcode Input */}
-              <div className="form-group">
-                <label className="form-label">Passcode</label>
+              <div className="space-y-2">
+                <label className="label-bento">Passcode</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type={showPasscode ? "text" : "password"}
                     value={passcode}
                     onChange={(e) => setPasscode(e.target.value)}
-                    className="input-modern pl-10 pr-10"
+                    className="input-bento pl-12 pr-12"
                     placeholder="Enter your Passcode"
                     disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPasscode(!showPasscode)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200"
                     disabled={isLoading}
                   >
                     {showPasscode ? (
@@ -99,8 +96,8 @@ export function LoginPage() {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                  <p className="text-red-600 text-sm">{error}</p>
+                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                  <p className="text-red-700 font-medium">{error}</p>
                 </div>
               )}
 
@@ -108,11 +105,11 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading || !employeeId.trim() || !passcode.trim()}
-                className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-bento btn-bento-primary btn-bento-large disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
-                    <div className="loading-spinner w-4 h-4"></div>
+                    <div className="loading-spinner-bento"></div>
                     Signing in...
                   </>
                 ) : (
@@ -120,40 +117,50 @@ export function LoginPage() {
                 )}
               </button>
             </form>
-          </div>
+        </div>
 
-          {/* Security Notice */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              Secure access to your dental practice management system
-            </p>
-          </div>
+        {/* Security Notice */}
+        <div className="text-center mb-6">
+          <p className="text-sm text-gray-500">
+            🔒 Secure access to your dental practice management system
+          </p>
+        </div>
 
-          {/* Demo Credentials Info */}
-          <div className="mt-8 card-modern p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Demo Access</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-xl">
-                <span className="font-medium text-blue-900">Admin</span>
-                <div className="text-blue-700">
-                  <div>ID: ADM-001</div>
-                  <div>Code: 100001</div>
+        {/* Demo Credentials Info */}
+        <div className="card-bento">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Demo Access</h3>
+          <div className="bento-grid bento-grid-3 gap-4">
+            <div className="bento-card bento-card-blue">
+              <div className="bento-card-header">
+                <div className="bento-card-icon">
+                  <User className="w-4 h-4" />
                 </div>
               </div>
-              <div className="flex justify-between items-center p-3 bg-pink-50 rounded-xl">
-                <span className="font-medium text-pink-900">Dentist</span>
-                <div className="text-pink-700">
-                  <div>ID: DEN-001</div>
-                  <div>Code: 200001</div>
+              <div className="bento-card-value text-lg">Admin</div>
+              <div className="bento-card-label">ID: ADM-001</div>
+              <div className="bento-card-meta">Code: 100001</div>
+            </div>
+
+            <div className="bento-card bento-card-pink">
+              <div className="bento-card-header">
+                <div className="bento-card-icon">
+                  <Heart className="w-4 h-4" />
                 </div>
               </div>
-              <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-xl">
-                <span className="font-medium text-yellow-900">Staff</span>
-                <div className="text-yellow-700">
-                  <div>ID: STF-001</div>
-                  <div>Code: 300001</div>
+              <div className="bento-card-value text-lg">Dentist</div>
+              <div className="bento-card-label">ID: DEN-001</div>
+              <div className="bento-card-meta">Code: 200001</div>
+            </div>
+
+            <div className="bento-card bento-card-orange">
+              <div className="bento-card-header">
+                <div className="bento-card-icon">
+                  <User className="w-4 h-4" />
                 </div>
               </div>
+              <div className="bento-card-value text-lg">Staff</div>
+              <div className="bento-card-label">ID: STF-001</div>
+              <div className="bento-card-meta">Code: 300001</div>
             </div>
           </div>
         </div>

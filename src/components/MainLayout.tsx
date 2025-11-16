@@ -113,7 +113,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex">
       {/* Mobile Navigation Overlay */}
       <div
         className={`nav-overlay ${sidebarOpen ? 'active' : ''}`}
@@ -121,44 +121,42 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       />
 
       {/* Side Navigation Panel */}
-      <aside className={`side-nav ${sidebarOpen ? 'open' : ''}`}>
+      <aside className={`sidebar-bento ${sidebarOpen ? 'open' : ''}`}>
         {/* Navigation Header */}
-        <div className="nav-header">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-medium)'}}>
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">KreativDental+</h1>
-                <p className="text-sm text-gray-600">Healthcare Management</p>
-              </div>
-            </div>
-            {/* Mobile Close Button */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <Heart className="w-6 h-6" />
           </div>
+          <div>
+            <div className="sidebar-title">KreativDental+</div>
+            <div className="sidebar-subtitle">Healthcare Management</div>
+          </div>
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-200 transition-colors ml-auto"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* User Info */}
-        <div style={{padding: '16px 16px 20px 16px'}}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{background: 'var(--color-blue-medium)'}}>
+        <div className="bento-card bento-card-gradient-blue mb-6">
+          <div className="bento-card-header">
+            <div className="bento-card-icon-large">
               {currentUser.name.charAt(0)}
             </div>
-            <div>
-              <p className="font-semibold text-gray-900">{currentUser.name}</p>
-              <p className="text-sm text-gray-600">{currentUser.role}</p>
+            <div className="bento-card-status">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
             </div>
           </div>
+          <div className="bento-card-value text-xl font-bold">{currentUser.name.split(' ')[0]}</div>
+          <div className="bento-card-label opacity-90">{currentUser.role}</div>
+          <div className="bento-card-meta text-xs opacity-75">Online • Active</div>
         </div>
 
         {/* Navigation Items */}
-        <div className="nav-content">
+        <div className="sidebar-nav">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -166,34 +164,36 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => handleNavClick(item.id)}
+                className={`nav-item-bento ${isActive ? 'active' : ''} hover:scale-105 transition-all duration-300`}
               >
-                <Icon className="w-5 h-5 nav-icon" />
-                <span>{item.label}</span>
+                <div className={`nav-item-icon-wrapper ${isActive ? 'bg-white/20' : 'bg-white/10'}`}>
+                  <Icon className="nav-item-icon" />
+                </div>
+                <span className="font-medium">{item.label}</span>
+                {isActive && <div className="nav-item-indicator"></div>}
               </button>
             );
           })}
         </div>
 
         {/* Logout Section */}
-        <div style={{padding: '8px 12px 16px 12px', marginTop: 'auto'}}>
+        <div className="mt-auto pt-4">
           <button
             onClick={onLogout}
-            className="nav-item"
-            style={{color: 'var(--color-pink-medium)'}}
+            className="nav-item-bento text-red-600 hover:bg-red-50"
           >
-            <LogOut className="w-5 h-5 nav-icon" />
+            <LogOut className="nav-item-icon" />
             <span>Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="main-content">
+      <div className="main-content-bento">
         {/* Content Header */}
-        <div className="content-header">
-          <div className="flex items-center gap-3">
+        <div className="content-header-bento">
+          <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setSidebarOpen(true)}
@@ -202,8 +202,8 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               <Menu className="w-6 h-6" />
             </button>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Good morning, {currentUser.name.split(' ')[0]}</h2>
-              <p className="text-gray-600">Welcome back to your dashboard</p>
+              <h2 className="content-title-bento">Good morning, {currentUser.name.split(' ')[0]} ✨</h2>
+              <p className="content-subtitle-bento">Welcome back to your dashboard</p>
             </div>
           </div>
 
@@ -213,182 +213,157 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               <input
                 type="text"
                 placeholder="Search patients..."
-                className="input-modern pl-10 w-64"
+                className="input-bento pl-10 w-64"
               />
             </div>
 
-            <button className="relative p-3 rounded-2xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
-              <Bell className="w-5 h-5" />
+            <button className="relative p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
+              <Bell className="w-5 h-5 text-gray-600" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </button>
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="content-body">
+        <div className="p-6">
           {activeTab === "dashboard" && (
             <>
               {/* Welcome Section */}
-              <div className="welcome-section">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-3xl font-bold mb-2">How are you feeling today?</h3>
-                    <p className="welcome-text mb-6">Track your practice metrics and patient care</p>
-
-                    {/* Quick Actions */}
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => setActiveTab("appointments-list")}
-                        className="quick-action"
-                      >
-                        Appointments
-                      </button>
-                      <button
-                        onClick={() => setActiveTab("patient-record")}
-                        className="quick-action"
-                      >
-                        Patients
-                      </button>
-                      {currentUser.role === 'admin' && (
-                        <button
-                          onClick={() => setActiveTab("financial")}
-                          className="quick-action"
-                        >
-                          Reports
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Large Heart Icon */}
-                  <div className="w-24 h-24 rounded-full flex items-center justify-center" style={{background: 'rgba(255, 255, 255, 0.1)'}}>
-                    <Heart className="w-12 h-12 text-white" />
-                  </div>
+              <div className="bento-hero mb-6">
+                <div className="bento-hero-title">How are you feeling today?</div>
+                <div className="bento-hero-subtitle">Track your practice metrics and patient care</div>
+                <div className="bento-hero-actions">
+                  <button
+                    onClick={() => setActiveTab("appointments-list")}
+                    className="bento-hero-action"
+                  >
+                    Appointments
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("patient-record")}
+                    className="bento-hero-action"
+                  >
+                    Patients
+                  </button>
+                  {currentUser.role === 'admin' && (
+                    <button
+                      onClick={() => setActiveTab("financial")}
+                      className="bento-hero-action"
+                    >
+                      Reports
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Metrics Grid */}
-              <div className="metric-grid">
+              <div className="bento-grid bento-grid-4 mb-8">
                 {/* Today's Appointments */}
-                <div className="metric-card metric-card-blue">
-                  <div className="flex items-center justify-between mb-4">
-                    <Calendar className="w-8 h-8" />
-                    <span className="text-sm font-medium">Today</span>
+                <div className="bento-card bento-card-blue">
+                  <div className="bento-card-header">
+                    <div className="bento-card-icon">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <span className="bento-card-label">Today</span>
                   </div>
-                  <div className="text-3xl font-bold mb-1">{todayMetrics.appointments}</div>
-                  <div className="text-sm opacity-90">Appointments</div>
-                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
-                    +2 from yesterday
-                  </div>
+                  <div className="bento-card-value">{todayMetrics.appointments}</div>
+                  <div className="bento-card-label">Appointments</div>
+                  <div className="bento-card-meta">+2 from yesterday</div>
                 </div>
 
                 {/* New Patients */}
-                <div className="metric-card metric-card-pink">
-                  <div className="flex items-center justify-between mb-4">
-                    <Users className="w-8 h-8" />
-                    <span className="text-sm font-medium">New</span>
+                <div className="bento-card bento-card-pink">
+                  <div className="bento-card-header">
+                    <div className="bento-card-icon">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <span className="bento-card-label">New</span>
                   </div>
-                  <div className="text-3xl font-bold mb-1">{todayMetrics.newPatients}</div>
-                  <div className="text-sm opacity-90">New Patients</div>
-                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
-                    This week
-                  </div>
+                  <div className="bento-card-value">{todayMetrics.newPatients}</div>
+                  <div className="bento-card-label">New Patients</div>
+                  <div className="bento-card-meta">This week</div>
                 </div>
 
                 {/* Revenue */}
-                <div className="metric-card metric-card-yellow">
-                  <div className="flex items-center justify-between mb-4">
-                    <DollarSign className="w-8 h-8" />
-                    <span className="text-sm font-medium">Revenue</span>
+                <div className="bento-card bento-card-orange">
+                  <div className="bento-card-header">
+                    <div className="bento-card-icon">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <span className="bento-card-label">Revenue</span>
                   </div>
-                  <div className="text-3xl font-bold mb-1">₱{todayMetrics.revenue.toLocaleString()}</div>
-                  <div className="text-sm opacity-90">Today's Total</div>
-                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit flex items-center" style={{background: 'rgba(0, 0, 0, 0.1)'}}>
-                    <TrendingUp className="w-3 h-3 inline mr-1" />
+                  <div className="bento-card-value">₱{todayMetrics.revenue.toLocaleString()}</div>
+                  <div className="bento-card-label">Today's Total</div>
+                  <div className="bento-card-meta flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
                     +12% vs yesterday
                   </div>
                 </div>
 
                 {/* Occupancy Rate */}
-                <div className="metric-card metric-card-green">
-                  <div className="flex items-center justify-between mb-4">
-                    <Activity className="w-8 h-8" />
-                    <span className="text-sm font-medium">Rate</span>
+                <div className="bento-card bento-card-green">
+                  <div className="bento-card-header">
+                    <div className="bento-card-icon">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    <span className="bento-card-label">Rate</span>
                   </div>
-                  <div className="text-3xl font-bold mb-1">{todayMetrics.occupancy}%</div>
-                  <div className="text-sm opacity-90">Occupancy</div>
-                  <div className="mt-3 text-xs rounded-full px-3 py-1 w-fit" style={{background: 'rgba(255, 255, 255, 0.2)'}}>
-                    Optimal level
-                  </div>
+                  <div className="bento-card-value">{todayMetrics.occupancy}%</div>
+                  <div className="bento-card-label">Occupancy</div>
+                  <div className="bento-card-meta">Optimal level</div>
                 </div>
               </div>
 
               {/* Content Grid */}
-              <div className="content-grid">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Today's Schedule */}
-                <div className="bento-card">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Today's Schedule</h3>
-                    <button
-                      onClick={() => setActiveTab("appointments-list")}
-                      className="text-sm font-medium"
-                      style={{color: 'var(--color-blue-medium)'}}
-                    >
-                      View All
-                    </button>
+                <div className="bento-list">
+                  <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-xl font-semibold text-gray-900">Today's Schedule</h3>
+                    <p className="text-gray-600">Upcoming appointments</p>
                   </div>
 
-                  <div className="space-y-4">
-                    {upcomingAppointments.map((appointment) => (
-                      <div key={appointment.id} className="flex items-center gap-4 p-4 rounded-2xl" style={{background: 'var(--color-gray-100)'}}>
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-blue-light)'}}>
-                          <Clock className="w-6 h-6" style={{color: 'var(--color-blue-medium)'}} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">{appointment.patient}</div>
-                          <div className="text-sm text-gray-600">{appointment.treatment}</div>
-                        </div>
-                        <div className="text-sm font-medium text-gray-900">{appointment.time}</div>
+                  {upcomingAppointments.map((appointment) => (
+                    <div key={appointment.id} className="bento-list-item">
+                      <div className="bento-list-icon bg-blue-100 text-blue-600">
+                        <Clock className="w-5 h-5" />
                       </div>
-                    ))}
-                  </div>
+                      <div className="bento-list-content">
+                        <div className="bento-list-title">{appointment.patient}</div>
+                        <div className="bento-list-subtitle">{appointment.treatment}</div>
+                      </div>
+                      <div className="bento-list-meta">{appointment.time}</div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Patient Status */}
-                <div className="bento-card">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Patient Status</h3>
-                    <button
-                      onClick={() => setActiveTab("appointment-status")}
-                      className="text-sm font-medium"
-                      style={{color: 'var(--color-blue-medium)'}}
-                    >
-                      Refresh
-                    </button>
+                <div className="bento-list">
+                  <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-xl font-semibold text-gray-900">Patient Status</h3>
+                    <p className="text-gray-600">Current patient flow</p>
                   </div>
 
-                  <div className="space-y-4">
-                    {recentPatients.map((patient) => (
-                      <div key={patient.id} className="flex items-center gap-4 p-4 rounded-2xl" style={{background: 'var(--color-gray-100)'}}>
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background: 'var(--color-pink-light)'}}>
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{background: 'var(--color-pink-medium)'}}>
-                            {patient.name.charAt(0)}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">{patient.name}</div>
-                          <div className="text-sm text-gray-600">{patient.time}</div>
-                        </div>
-                        <span className={`badge ${
-                          patient.status === 'Completed' ? 'badge-green' :
-                          patient.status === 'In Progress' ? 'badge-blue' :
-                          'badge-yellow'
+                  {recentPatients.map((patient) => (
+                    <div key={patient.id} className="bento-list-item">
+                      <div className="bento-list-icon bg-pink-100 text-pink-600">
+                        {patient.name.charAt(0)}
+                      </div>
+                      <div className="bento-list-content">
+                        <div className="bento-list-title">{patient.name}</div>
+                        <div className="bento-list-subtitle">{patient.time}</div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${
+                          patient.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                          patient.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
                         }`}>
                           {patient.status}
                         </span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </>
@@ -412,9 +387,11 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
       {/* Floating Action Button */}
       <button
         onClick={() => setActiveTab("appointment")}
-        className="fab"
+        className="bento-fab"
+        title="New Appointment"
       >
-        <Plus className="w-6 h-6" />
+        <Plus className="w-8 h-8" />
+        <div className="bento-fab-glow"></div>
       </button>
     </div>
   );
