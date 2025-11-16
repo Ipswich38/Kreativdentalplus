@@ -17,93 +17,93 @@ export function KreativPayrollPage() {
   
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-gray-900">kreativPayroll</h2>
-          <p className="text-sm text-gray-600 mt-1">
+      {/* Mobile-Optimized Header */}
+      <div className="flex flex-col gap-4">
+        <div className="text-center sm:text-left">
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">KreativPayroll</h2>
+          <p className="text-sm lg:text-base text-gray-600 mt-1">
             Manage payroll for {totalEmployees} team members ({dentists.length} dentists, {staff.length} staff)
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <Button variant="outline" className="flex-1 sm:flex-none text-xs lg:text-sm">
             <Download className="w-4 h-4 mr-2" />
-            Export Report
+            Export
           </Button>
-          <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+          <Button className="flex-1 sm:flex-none bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs lg:text-sm">
             Process Payroll
           </Button>
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Mobile-Optimized Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Payroll</p>
-                <p className="text-gray-900">₱45,250</p>
+              <div className="flex-1">
+                <p className="text-xs lg:text-sm text-gray-600 mb-1">Total Payroll</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">₱45,250</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Employees</p>
-                <p className="text-gray-900">{totalEmployees}</p>
+              <div className="flex-1">
+                <p className="text-xs lg:text-sm text-gray-600 mb-1">Employees</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">{totalEmployees}</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">This Month</p>
-                <p className="text-gray-900">₱42,800</p>
+              <div className="flex-1">
+                <p className="text-xs lg:text-sm text-gray-600 mb-1">This Month</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">₱42,800</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardContent className="p-5">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Growth</p>
-                <p className="text-gray-900">+12.5%</p>
+              <div className="flex-1">
+                <p className="text-xs lg:text-sm text-gray-600 mb-1">Growth</p>
+                <p className="text-lg lg:text-xl font-bold text-gray-900">+12.5%</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabs */}
+      {/* Mobile-Optimized Tabs */}
       <Tabs defaultValue="rates-list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="rates-list">Rates Summary</TabsTrigger>
-          <TabsTrigger value="employees">Dentists</TabsTrigger>
-          <TabsTrigger value="staff">Staff</TabsTrigger>
-          <TabsTrigger value="commission">Staff Commission</TabsTrigger>
-          <TabsTrigger value="rates">Detailed Rates</TabsTrigger>
-          <TabsTrigger value="payroll">Payroll History</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
+          <TabsTrigger value="rates-list" className="text-xs lg:text-sm">Summary</TabsTrigger>
+          <TabsTrigger value="employees" className="text-xs lg:text-sm">Dentists</TabsTrigger>
+          <TabsTrigger value="staff" className="text-xs lg:text-sm">Staff</TabsTrigger>
+          <TabsTrigger value="commission" className="text-xs lg:text-sm">Commission</TabsTrigger>
+          <TabsTrigger value="rates" className="text-xs lg:text-sm">Details</TabsTrigger>
+          <TabsTrigger value="payroll" className="text-xs lg:text-sm">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rates-list" className="space-y-4">
@@ -176,31 +176,25 @@ export function KreativPayrollPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Service/Treatment</TableHead>
-                    <TableHead>Commission Amount</TableHead>
-                    <TableHead className="text-right">Condition</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {commissionRates.map((rate, idx) => (
-                    <TableRow key={idx} className="hover:bg-gray-50">
-                      <TableCell className="py-3">{rate.service}</TableCell>
-                      <TableCell className="py-3">
-                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+            <CardContent className="p-4">
+              {/* Mobile-responsive commission list */}
+              <div className="space-y-3">
+                {commissionRates.map((rate, idx) => (
+                  <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 text-sm lg:text-base">{rate.service}</h4>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-1">{rate.condition}</p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs lg:text-sm">
                           {rate.amount}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-right py-3 text-sm text-gray-600">
-                        {rate.condition}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -13,46 +13,31 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { getAllPatients, getPatientStats } from "../data/patients";
+import { getAllAppointments, getAppointmentStats } from "../data/appointments";
 
 export function DashboardPage() {
-  // Mock data for dental practice dashboard
+  // Real data from your dental practice
+  const patients = getAllPatients();
+  const patientStats = getPatientStats();
+  const appointments = getAllAppointments();
+  const appointmentStats = getAppointmentStats();
+
   const todayStats = {
-    totalPatients: 147,
-    completedTreatments: 23,
-    upcomingAppointments: 8,
-    pendingApprovals: 3,
+    totalPatients: patientStats.totalPatients,
+    completedTreatments: appointmentStats.completed,
+    upcomingAppointments: appointmentStats.upcoming,
+    pendingApprovals: appointmentStats.scheduled,
   };
 
-  const recentPatients = [
-    {
-      id: 1,
-      name: "Alexandra Rodriguez",
-      treatment: "Dental Implant Procedure",
-      status: "Completed",
-      avatar: "AR",
-    },
-    {
-      id: 2,
-      name: "Marcus Johnson",
-      treatment: "Root Canal Treatment",
-      status: "In Progress",
-      avatar: "MJ",
-    },
-    {
-      id: 3,
-      name: "Sarah Williams",
-      treatment: "Orthodontic Consultation",
-      status: "Pending",
-      avatar: "SW",
-    },
-    {
-      id: 4,
-      name: "David Chen",
-      treatment: "Teeth Whitening Session",
-      status: "Completed",
-      avatar: "DC",
-    },
-  ];
+  // Convert real patients to recent patients format
+  const recentPatients = patients.slice(0, 4).map(patient => ({
+    id: patient.id,
+    name: `${patient.firstName} ${patient.lastName}`,
+    treatment: patient.lastVisit ? "Recent Visit" : "New Patient",
+    status: patient.status === "active" ? "Active" : "Inactive",
+    avatar: `${patient.firstName[0]}${patient.lastName[0]}`,
+  }));
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
