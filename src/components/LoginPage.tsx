@@ -29,7 +29,7 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 flex items-center justify-center p-4">
-      <div className="mobile-layout">
+      <div className="w-full max-w-md mx-auto">
         {/* Header with Logo */}
         <div className="page-header text-center border-0 bg-transparent">
           <div className="w-full">

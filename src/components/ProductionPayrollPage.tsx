@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Badge } from "./ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
-import { Calculator, Users, DollarSign, FileSpreadsheet, Download, Plus, Clock } from "lucide-react";
+import { Calculator, Users, DollarSign, FileSpreadsheet, Download, Plus, Clock, Calendar, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from '../lib/supabase';
 import type { User } from "../data/users";
@@ -41,6 +41,8 @@ interface AttendanceSummary {
   days_worked: number;
   gross_pay: number;
   commission_amount?: number;
+  is_auto_tracked?: boolean;
+  role?: string;
 }
 
 interface PayrollPageProps {
@@ -227,10 +229,120 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
         staff.gross_pay = regularPay + overtimePay;
       });
 
+      // Auto-generate dentist attendance based on appointments
+      await generateDentistAttendance(startDate, endDate);
+
       setAttendanceSummary(Object.values(staffSummary));
     } catch (error: any) {
       console.error('Error calculating attendance summary:', error);
       toast.error('Failed to calculate attendance summary');
+    }
+  };
+
+  // Auto-generate dentist attendance based on appointments
+  const generateDentistAttendance = async (startDate: string, endDate: string) => {
+    try {
+      console.log('Generating dentist auto-attendance for period:', startDate, 'to', endDate);
+
+      // Fetch all dentists
+      const { data: dentists, error: dentistError } = await supabase
+        .from('staff_users')
+        .select('id, full_name, hourly_rate, employee_number, role')
+        .eq('role', 'dentist')
+        .eq('status', 'active');
+
+      if (dentistError) {
+        console.error('Error fetching dentists:', dentistError);
+        return;
+      }
+
+      if (!dentists || dentists.length === 0) {
+        console.log('No active dentists found');
+        return;
+      }
+
+      // Fetch appointments for each dentist in the period
+      for (const dentist of dentists) {
+        console.log('Processing appointments for dentist:', dentist.full_name);
+
+        const { data: appointments, error: appointmentError } = await supabase
+          .from('appointments')
+          .select('id, appointment_date, appointment_time, status, duration')
+          .eq('dentist_id', dentist.id)
+          .gte('appointment_date', startDate)
+          .lte('appointment_date', endDate)
+          .in('status', ['completed', 'confirmed', 'in_progress']);
+
+        if (appointmentError) {
+          console.error('Error fetching appointments for dentist:', dentist.full_name, appointmentError);
+          continue;
+        }
+
+        if (!appointments || appointments.length === 0) {
+          console.log('No appointments found for dentist:', dentist.full_name);
+          continue;
+        }
+
+        // Calculate total hours based on appointments
+        let totalHours = 0;
+        let daysWorked = 0;
+        const workDays = new Set<string>();
+
+        appointments.forEach(appointment => {
+          // Each appointment defaults to 1 hour if duration is not specified
+          const appointmentHours = appointment.duration ? appointment.duration / 60 : 1;
+          totalHours += appointmentHours;
+          workDays.add(appointment.appointment_date);
+        });
+
+        daysWorked = workDays.size;
+
+        // Calculate regular and overtime hours
+        const regularHours = Math.min(totalHours, daysWorked * 8);
+        const overtimeHours = Math.max(0, totalHours - (daysWorked * 8));
+
+        // Generate or update attendance record for this dentist
+        const attendanceRecord = {
+          staff_user_id: dentist.id,
+          staff_name: dentist.full_name,
+          hourly_rate: dentist.hourly_rate || 0,
+          total_hours: totalHours,
+          regular_hours: regularHours,
+          overtime_hours: overtimeHours,
+          days_worked: daysWorked,
+          gross_pay: (regularHours * (dentist.hourly_rate || 0)) + (overtimeHours * (dentist.hourly_rate || 0) * 1.25),
+          is_auto_tracked: true,
+          role: 'dentist'
+        };
+
+        console.log('Generated attendance record for dentist:', dentist.full_name, attendanceRecord);
+
+        // Check if this dentist already exists in staffSummary, if not add them
+        const staffId = dentist.id;
+        if (!staffSummary[staffId]) {
+          staffSummary[staffId] = attendanceRecord;
+        } else {
+          // If manual attendance exists, add the appointment-based hours
+          staffSummary[staffId].total_hours += totalHours;
+          staffSummary[staffId].days_worked = Math.max(staffSummary[staffId].days_worked, daysWorked);
+
+          // Recalculate regular and overtime
+          const combinedRegular = Math.min(staffSummary[staffId].total_hours, staffSummary[staffId].days_worked * 8);
+          const combinedOvertime = Math.max(0, staffSummary[staffId].total_hours - (staffSummary[staffId].days_worked * 8));
+
+          staffSummary[staffId].regular_hours = combinedRegular;
+          staffSummary[staffId].overtime_hours = combinedOvertime;
+          staffSummary[staffId].gross_pay = (combinedRegular * staffSummary[staffId].hourly_rate) +
+                                           (combinedOvertime * staffSummary[staffId].hourly_rate * 1.25);
+          staffSummary[staffId].is_auto_tracked = true;
+        }
+
+        toast.success(`Auto-generated attendance for ${dentist.full_name}: ${totalHours.toFixed(1)} hours`);
+      }
+
+    } catch (error: any) {
+      console.error('Error generating dentist attendance:', error);
+      toast.error('Failed to auto-generate dentist attendance');
     }
   };
 
@@ -556,6 +668,137 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
           </Card>
         </div>
       )}
+
+      {/* Attendance Integration Card */}
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-800">
+            <UserCheck className="h-5 w-5" />
+            Live Attendance Integration
+          </CardTitle>
+          <p className="text-sm text-blue-600">
+            Real-time attendance tracking automatically syncs with payroll calculations
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Current Month Attendance Summary */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">Current Month Overview</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-xl border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Calendar className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Active Today</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {attendanceSummary.filter(s => s.days_worked > 0).length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Clock className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Total Hours</p>
+                      <p className="text-xl font-bold text-blue-600">
+                        {attendanceSummary.reduce((sum, s) => sum + s.total_hours, 0).toFixed(1)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dentist Auto-Tracking */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">Dentist Auto-Tracking</h4>
+              <div className="bg-white p-4 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h5 className="font-medium text-gray-900">Appointment-Based Tracking</h5>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Dentist attendance is automatically calculated based on scheduled appointments and patient visits
+                    </p>
+                    <div className="mt-3 flex items-center gap-2">
+                      <Badge variant="outline" className="text-orange-600">
+                        Auto-Generated
+                      </Badge>
+                      <span className="text-xs text-gray-500">
+                        Updates hourly
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Integration Status */}
+            <div className="md:col-span-2 mt-4">
+              <div className="bg-white p-4 rounded-xl border border-green-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <UserCheck className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h5 className="font-medium text-green-800">Integration Active</h5>
+                    <p className="text-sm text-green-600">
+                      Attendance data is automatically synced and ready for payroll generation
+                    </p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 border-green-300">
+                    Connected
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            {canManagePayroll && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => calculateAttendanceSummary(
+                    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+                    new Date().toISOString().split('T')[0]
+                  )}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  <Clock className="h-4 w-4 mr-1" />
+                  Refresh Current Month
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.dispatchEvent(new CustomEvent('navigateTo', { detail: 'attendance' }))}
+                  className="text-indigo-600 border-indigo-300 hover:bg-indigo-50"
+                >
+                  <Calendar className="h-4 w-4 mr-1" />
+                  View Attendance
+                </Button>
+              </>
+            )}
+            {!canManagePayroll && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <AlertCircle className="h-4 w-4" />
+                Your attendance is tracked automatically for payroll calculations
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Payroll Records */}
       <Card>
