@@ -1,0 +1,777 @@
+/* DONEZO CLONE - EXACT DESIGN REPLICATION */
+:root {
+  --primary-green: #22c55e;
+  --dark-green: #166534;
+  --light-green: #dcfce7;
+  --secondary-blue: #3b82f6;
+  --accent-orange: #f97316;
+  --accent-yellow: #eab308;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --text-lighter: #9ca3af;
+  --bg-gray: #f9fafb;
+  --border-light: #e5e7eb;
+  --white: #ffffff;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-gray);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* MAIN LAYOUT */
+.donezo-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-gray);
+}
+
+/* SIDEBAR */
+.donezo-sidebar {
+  width: 280px;
+  background: var(--white);
+  border-right: 1px solid var(--border-light);
+  padding: 24px 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.donezo-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 32px;
+}
+
+.donezo-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-green);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.donezo-logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* NAVIGATION */
+.donezo-nav {
+  padding: 0 24px;
+}
+
+.donezo-nav-section {
+  margin-bottom: 32px;
+}
+
+.donezo-nav-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-lighter);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.donezo-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border-radius: var(--radius-lg);
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+
+.donezo-nav-item:hover {
+  background: #f3f4f6;
+  color: var(--text-dark);
+}
+
+.donezo-nav-item.active {
+  background: var(--primary-green);
+  color: white;
+}
+
+.donezo-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: var(--dark-green);
+  border-radius: 0 2px 2px 0;
+}
+
+.donezo-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.donezo-nav-badge {
+  background: var(--primary-green);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: auto;
+}
+
+/* MAIN CONTENT */
+.donezo-main {
+  flex: 1;
+  margin-left: 280px;
+  background: var(--bg-gray);
+}
+
+/* HEADER */
+.donezo-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  gap: 24px;
+}
+
+.donezo-search {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.donezo-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  background: var(--bg-gray);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.donezo-search-input:focus {
+  border-color: var(--primary-green);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.donezo-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-lighter);
+}
+
+.donezo-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.donezo-header-button {
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.donezo-header-button:hover {
+  background: var(--dark-green);
+}
+
+.donezo-header-button.secondary {
+  background: var(--white);
+  color: var(--text-dark);
+  border: 1px solid var(--border-light);
+}
+
+.donezo-header-button.secondary:hover {
+  background: var(--bg-gray);
+}
+
+.donezo-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.donezo-user-profile:hover {
+  background: var(--bg-gray);
+}
+
+.donezo-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: 14px;
+}
+
+.donezo-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.donezo-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1;
+}
+
+.donezo-user-email {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1;
+}
+
+/* DASHBOARD CONTENT */
+.donezo-dashboard {
+  padding: 32px;
+}
+
+.donezo-dashboard-header {
+  margin-bottom: 32px;
+}
+
+.donezo-dashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.donezo-dashboard-subtitle {
+  font-size: 16px;
+  color: var(--text-light);
+}
+
+/* STATS GRID */
+.donezo-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.donezo-stat-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.donezo-stat-card.primary {
+  background: var(--primary-green);
+  color: white;
+}
+
+.donezo-stat-card.primary .donezo-stat-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.donezo-stat-card.primary .donezo-stat-meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.donezo-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.donezo-stat-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+.donezo-stat-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-light);
+}
+
+.donezo-stat-card.primary .donezo-stat-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.donezo-stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.donezo-stat-card.primary .donezo-stat-value {
+  color: white;
+}
+
+.donezo-stat-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-lighter);
+}
+
+.donezo-stat-trend {
+  width: 12px;
+  height: 12px;
+  color: var(--primary-green);
+}
+
+/* CONTENT SECTIONS */
+.donezo-content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.donezo-section {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.donezo-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.donezo-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.donezo-section-action {
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-light);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.donezo-section-action:hover {
+  background: var(--bg-gray);
+  color: var(--text-dark);
+}
+
+/* BOTTOM GRID */
+.donezo-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .donezo-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .donezo-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donezo-bottom-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .donezo-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .donezo-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .donezo-main {
+    margin-left: 0;
+  }
+
+  .donezo-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donezo-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donezo-dashboard {
+    padding: 16px;
+  }
+
+  .donezo-header {
+    padding: 16px;
+  }
+}
+
+/* CHART PLACEHOLDER */
+.donezo-chart-container {
+  height: 200px;
+  background: var(--bg-gray);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.donezo-chart-bars {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  height: 120px;
+}
+
+.donezo-chart-bar {
+  width: 24px;
+  background: var(--primary-green);
+  border-radius: 4px 4px 0 0;
+  opacity: 0.8;
+}
+
+.donezo-chart-bar:nth-child(odd) {
+  background: var(--text-lighter);
+  opacity: 0.3;
+}
+
+/* TEAM LIST */
+.donezo-team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.donezo-team-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-gray);
+}
+
+.donezo-team-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.donezo-team-info {
+  flex: 1;
+}
+
+.donezo-team-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.donezo-team-role {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.donezo-team-status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.donezo-team-status.completed {
+  background: var(--light-green);
+  color: var(--dark-green);
+}
+
+.donezo-team-status.progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.donezo-team-status.pending {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* PROGRESS CIRCLE */
+.donezo-progress-circle {
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+  position: relative;
+}
+
+.donezo-progress-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.donezo-progress-bg {
+  fill: none;
+  stroke: var(--border-light);
+  stroke-width: 8;
+}
+
+.donezo-progress-bar {
+  fill: none;
+  stroke: var(--primary-green);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.donezo-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* TIME TRACKER */
+.donezo-time-tracker {
+  background: var(--dark-green);
+  color: white;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.donezo-time-display {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 16px 0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.donezo-time-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.donezo-time-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.donezo-time-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* MOBILE APP SECTION */
+.donezo-mobile-app {
+  background: var(--text-dark);
+  color: white;
+  text-align: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.donezo-mobile-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+}
+
+.donezo-mobile-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.donezo-mobile-subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+
+.donezo-download-button {
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.donezo-download-button:hover {
+  background: var(--dark-green);
+}
+
+/* REMINDER ITEMS */
+.donezo-reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-gray);
+  margin-bottom: 12px;
+}
+
+.donezo-reminder-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.donezo-reminder-content {
+  flex: 1;
+}
+
+.donezo-reminder-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.donezo-reminder-time {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.donezo-start-button {
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.donezo-start-button:hover {
+  background: var(--dark-green);
+}

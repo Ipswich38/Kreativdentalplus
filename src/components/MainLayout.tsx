@@ -18,7 +18,16 @@ import {
   Package,
   Wallet,
   Menu,
-  X
+  X,
+  BarChart3,
+  MessageSquare,
+  HelpCircle,
+  Command,
+  Play,
+  Square,
+  Zap,
+  Download,
+  Smartphone
 } from "lucide-react";
 import { NewAppointmentPage } from "./NewAppointmentPage";
 import { AppointmentsPage } from "./AppointmentsPage";
@@ -44,326 +53,391 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Debug logging
-  console.log('MainLayout - currentUser:', currentUser);
-  console.log('MainLayout - activeTab:', activeTab);
-
-  // Listen for navigation events from dashboard
-  useState(() => {
-    const handleNavigate = (e: CustomEvent<TabType>) => {
-      setActiveTab(e.detail);
-    };
-    window.addEventListener('navigateTo', handleNavigate as EventListener);
-    return () => window.removeEventListener('navigateTo', handleNavigate as EventListener);
-  });
-
-  // Define navigation items based on user role
-  const getNavItems = () => {
-    const allItems = [
-      { id: "dashboard" as TabType, label: "Dashboard", icon: Home, roles: ["admin", "dentist", "staff", "receptionist", "front_desk"] },
-      { id: "appointment" as TabType, label: "Book Appointment", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
-      { id: "appointments-list" as TabType, label: "Appointments", icon: Calendar, roles: ["admin", "dentist", "receptionist", "front_desk"] },
-      { id: "payments" as TabType, label: "Payments", icon: DollarSign, roles: ["admin", "receptionist", "front_desk"] },
-      { id: "appointment-status" as TabType, label: "Patient Flow", icon: Activity, roles: ["admin", "receptionist", "front_desk"] },
-      { id: "patient-record" as TabType, label: "Patients", icon: Users, roles: ["admin", "dentist", "receptionist", "staff", "front_desk"] },
-      { id: "financial" as TabType, label: "Financial", icon: DollarSign, roles: ["admin"] },
-      { id: "service-catalog" as TabType, label: "Services", icon: FileText, roles: ["admin", "dentist", "receptionist", "front_desk"] },
-      { id: "kreativ-payroll" as TabType, label: "Payroll", icon: Wallet, roles: ["admin", "dentist", "staff", "receptionist"] },
-      { id: "attendance" as TabType, label: "Attendance", icon: Clock, roles: ["admin", "dentist", "staff"] },
-      { id: "inventory" as TabType, label: "Inventory", icon: Package, roles: ["admin", "front_desk", "dentist"] },
-    ];
-
-    return allItems.filter(item => item.roles.includes(currentUser.role));
+  // Mock data for dental practice dashboard
+  const todayStats = {
+    totalPatients: 147,
+    completedTreatments: 23,
+    upcomingAppointments: 8,
+    pendingApprovals: 3
   };
 
-  const navItems = getNavItems();
+  const recentPatients = [
+    { id: 1, name: "Alexandra Rodriguez", treatment: "Dental Implant Procedure", status: "Completed", avatar: "AR" },
+    { id: 2, name: "Marcus Johnson", treatment: "Root Canal Treatment", status: "In Progress", avatar: "MJ" },
+    { id: 3, name: "Sarah Williams", treatment: "Orthodontic Consultation", status: "Pending", avatar: "SW" },
+    { id: 4, name: "David Chen", treatment: "Teeth Whitening Session", status: "Completed", avatar: "DC" }
+  ];
+
+  const upcomingAppointments = [
+    { id: 1, time: "09:00 AM", patient: "Emergency Checkup", action: "Start Treatment" },
+    { id: 2, time: "11:30 AM", patient: "Cleaning Appointment", action: "Prepare Room" },
+    { id: 3, time: "02:00 PM", patient: "Consultation Visit", action: "Review Files" }
+  ];
+
+  const projectTasks = [
+    { icon: Zap, title: "Develop Patient Portal", due: "Due next day", type: "development" },
+    { icon: Users, title: "Staff Training Program", due: "Due next week", type: "training" },
+    { icon: FileText, title: "Update Treatment Protocols", due: "Due next week", type: "documentation" },
+    { icon: BarChart3, title: "Monthly Practice Analytics", due: "Due next month", type: "analytics" },
+    { icon: MessageSquare, title: "Patient Satisfaction Survey", due: "Due next month", type: "feedback" }
+  ];
 
   const handleNavClick = (tab: TabType) => {
     setActiveTab(tab);
     setSidebarOpen(false);
   };
 
-  // Get initials for avatar
-  const getInitials = () => {
-    const names = currentUser.name.split(' ');
-    if (names.length >= 2) {
-      return names[0][0] + names[names.length - 1][0];
-    }
-    return currentUser.name.substring(0, 2).toUpperCase();
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
   };
 
-  // Mock data for dashboard metrics
-  const todayMetrics = {
-    appointments: 12,
-    newPatients: 3,
-    revenue: 2850,
-    occupancy: 85
-  };
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const upcomingAppointments = [
-    { id: 1, time: "9:00 AM", patient: "Sarah Johnson", treatment: "Cleaning" },
-    { id: 2, time: "10:30 AM", patient: "Mike Chen", treatment: "Root Canal" },
-    { id: 3, time: "2:00 PM", patient: "Emily Davis", treatment: "Check-up" },
-  ];
-
-  const recentPatients = [
-    { id: 1, name: "Alice Brown", status: "Completed", time: "8:30 AM" },
-    { id: 2, name: "John Smith", status: "In Progress", time: "9:45 AM" },
-    { id: 3, name: "Maria Garcia", status: "Waiting", time: "10:15 AM" },
-  ];
+  // Update time every second
+  useState(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  });
 
   return (
-    <div className="min-h-screen flex">
-      {/* Mobile Navigation Overlay */}
-      <div
-        className={`nav-overlay ${sidebarOpen ? 'active' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* Side Navigation Panel */}
-      <aside className={`sidebar-bento ${sidebarOpen ? 'open' : ''}`}>
-        {/* Navigation Header */}
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <Heart className="w-6 h-6" />
+    <div className="donezo-layout">
+      {/* Sidebar */}
+      <div className={`donezo-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {/* Logo */}
+        <div className="donezo-logo">
+          <div className="donezo-logo-icon">
+            <Heart className="w-4 h-4" />
           </div>
-          <div>
-            <div className="sidebar-title">KreativDental+</div>
-            <div className="sidebar-subtitle">Healthcare Management</div>
-          </div>
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-200 transition-colors ml-auto"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="donezo-logo-text">DentalPro</div>
         </div>
 
-        {/* User Info */}
-        <div className="bento-card bento-card-gradient-blue mb-6">
-          <div className="bento-card-header">
-            <div className="bento-card-icon-large">
-              {currentUser.name.charAt(0)}
-            </div>
-            <div className="bento-card-status">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            </div>
-          </div>
-          <div className="bento-card-value text-xl font-bold">{currentUser.name.split(' ')[0]}</div>
-          <div className="bento-card-label opacity-90">{currentUser.role}</div>
-          <div className="bento-card-meta text-xs opacity-75">Online • Active</div>
-        </div>
+        {/* Navigation */}
+        <div className="donezo-nav">
+          {/* Main Navigation */}
+          <div className="donezo-nav-section">
+            <div className="donezo-nav-title">Menu</div>
 
-        {/* Navigation Items */}
-        <div className="sidebar-nav">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`nav-item-bento ${isActive ? 'active' : ''} hover:scale-105 transition-all duration-300`}
-              >
-                <div className={`nav-item-icon-wrapper ${isActive ? 'bg-white/20' : 'bg-white/10'}`}>
-                  <Icon className="nav-item-icon" />
-                </div>
-                <span className="font-medium">{item.label}</span>
-                {isActive && <div className="nav-item-indicator"></div>}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Logout Section */}
-        <div className="mt-auto pt-4">
-          <button
-            onClick={onLogout}
-            className="nav-item-bento text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="nav-item-icon" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="main-content-bento">
-        {/* Content Header */}
-        <div className="content-header-bento">
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Button */}
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => handleNavClick("dashboard")}
+              className={`donezo-nav-item ${activeTab === "dashboard" ? "active" : ""}`}
             >
-              <Menu className="w-6 h-6" />
+              <Home className="donezo-nav-icon" />
+              <span>Dashboard</span>
             </button>
-            <div>
-              <h2 className="content-title-bento">Good morning, {currentUser.name.split(' ')[0]} ✨</h2>
-              <p className="content-subtitle-bento">Welcome back to your dashboard</p>
-            </div>
+
+            <button
+              onClick={() => handleNavClick("appointments-list")}
+              className={`donezo-nav-item ${activeTab === "appointments-list" ? "active" : ""}`}
+            >
+              <Calendar className="donezo-nav-icon" />
+              <span>Appointments</span>
+              <span className="donezo-nav-badge">12</span>
+            </button>
+
+            <button
+              onClick={() => handleNavClick("patient-record")}
+              className={`donezo-nav-item ${activeTab === "patient-record" ? "active" : ""}`}
+            >
+              <Users className="donezo-nav-icon" />
+              <span>Patients</span>
+            </button>
+
+            <button
+              onClick={() => handleNavClick("financial")}
+              className={`donezo-nav-item ${activeTab === "financial" ? "active" : ""}`}
+            >
+              <BarChart3 className="donezo-nav-icon" />
+              <span>Analytics</span>
+            </button>
+
+            <button
+              onClick={() => handleNavClick("dentists")}
+              className={`donezo-nav-item ${activeTab === "dentists" ? "active" : ""}`}
+            >
+              <Users className="donezo-nav-icon" />
+              <span>Team</span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative hidden sm:block">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search patients..."
-                className="input-bento pl-10 w-64"
-              />
-            </div>
+          {/* General Section */}
+          <div className="donezo-nav-section">
+            <div className="donezo-nav-title">General</div>
 
-            <button className="relative p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            <button
+              onClick={() => handleNavClick("service-catalog")}
+              className={`donezo-nav-item ${activeTab === "service-catalog" ? "active" : ""}`}
+            >
+              <Settings className="donezo-nav-icon" />
+              <span>Settings</span>
+            </button>
+
+            <button
+              onClick={() => handleNavClick("inventory")}
+              className="donezo-nav-item"
+            >
+              <HelpCircle className="donezo-nav-icon" />
+              <span>Help</span>
+            </button>
+
+            <button onClick={onLogout} className="donezo-nav-item">
+              <LogOut className="donezo-nav-icon" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Content Body */}
-        <div className="p-6">
+      {/* Main Content */}
+      <div className="donezo-main">
+        {/* Header */}
+        <div className="donezo-header">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          {/* Search */}
+          <div className="donezo-search">
+            <Search className="donezo-search-icon" />
+            <input
+              type="text"
+              placeholder="Search patients, treatments..."
+              className="donezo-search-input"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">⌘F</span>
+          </div>
+
+          {/* Header Actions */}
+          <div className="donezo-header-actions">
+            <button className="donezo-header-button">
+              <Plus className="w-4 h-4" />
+              Add Patient
+            </button>
+            <button className="donezo-header-button secondary">
+              Import Data
+            </button>
+
+            {/* User Profile */}
+            <div className="donezo-user-profile">
+              <div className="donezo-user-avatar">
+                {currentUser.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div className="donezo-user-info">
+                <div className="donezo-user-name">{currentUser.name}</div>
+                <div className="donezo-user-email">{currentUser.role}@dentalcare.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard Content */}
+        <div className="donezo-dashboard">
           {activeTab === "dashboard" && (
             <>
-              {/* Welcome Section */}
-              <div className="bento-hero mb-6">
-                <div className="bento-hero-title">How are you feeling today?</div>
-                <div className="bento-hero-subtitle">Track your practice metrics and patient care</div>
-                <div className="bento-hero-actions">
-                  <button
-                    onClick={() => setActiveTab("appointments-list")}
-                    className="bento-hero-action"
-                  >
-                    Appointments
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("patient-record")}
-                    className="bento-hero-action"
-                  >
-                    Patients
-                  </button>
-                  {currentUser.role === 'admin' && (
-                    <button
-                      onClick={() => setActiveTab("financial")}
-                      className="bento-hero-action"
-                    >
-                      Reports
-                    </button>
-                  )}
-                </div>
+              {/* Dashboard Header */}
+              <div className="donezo-dashboard-header">
+                <h1 className="donezo-dashboard-title">Dashboard</h1>
+                <p className="donezo-dashboard-subtitle">Plan, prioritize, and accomplish your dental practice tasks with ease.</p>
               </div>
 
-              {/* Metrics Grid */}
-              <div className="bento-grid bento-grid-4 mb-8">
-                {/* Today's Appointments */}
-                <div className="bento-card bento-card-blue">
-                  <div className="bento-card-header">
-                    <div className="bento-card-icon">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <span className="bento-card-label">Today</span>
+              {/* Stats Grid */}
+              <div className="donezo-stats-grid">
+                {/* Total Patients */}
+                <div className="donezo-stat-card primary">
+                  <div className="donezo-stat-header">
+                    <span className="donezo-stat-label">Total Patients</span>
+                    <TrendingUp className="donezo-stat-icon" />
                   </div>
-                  <div className="bento-card-value">{todayMetrics.appointments}</div>
-                  <div className="bento-card-label">Appointments</div>
-                  <div className="bento-card-meta">+2 from yesterday</div>
-                </div>
-
-                {/* New Patients */}
-                <div className="bento-card bento-card-pink">
-                  <div className="bento-card-header">
-                    <div className="bento-card-icon">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <span className="bento-card-label">New</span>
-                  </div>
-                  <div className="bento-card-value">{todayMetrics.newPatients}</div>
-                  <div className="bento-card-label">New Patients</div>
-                  <div className="bento-card-meta">This week</div>
-                </div>
-
-                {/* Revenue */}
-                <div className="bento-card bento-card-orange">
-                  <div className="bento-card-header">
-                    <div className="bento-card-icon">
-                      <DollarSign className="w-5 h-5" />
-                    </div>
-                    <span className="bento-card-label">Revenue</span>
-                  </div>
-                  <div className="bento-card-value">₱{todayMetrics.revenue.toLocaleString()}</div>
-                  <div className="bento-card-label">Today's Total</div>
-                  <div className="bento-card-meta flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +12% vs yesterday
+                  <div className="donezo-stat-value">{todayStats.totalPatients}</div>
+                  <div className="donezo-stat-meta">
+                    <TrendingUp className="donezo-stat-trend" />
+                    Increased from last month
                   </div>
                 </div>
 
-                {/* Occupancy Rate */}
-                <div className="bento-card bento-card-green">
-                  <div className="bento-card-header">
-                    <div className="bento-card-icon">
-                      <Activity className="w-5 h-5" />
-                    </div>
-                    <span className="bento-card-label">Rate</span>
+                {/* Completed Treatments */}
+                <div className="donezo-stat-card">
+                  <div className="donezo-stat-header">
+                    <span className="donezo-stat-label">Completed Treatments</span>
+                    <Activity className="donezo-stat-icon" />
                   </div>
-                  <div className="bento-card-value">{todayMetrics.occupancy}%</div>
-                  <div className="bento-card-label">Occupancy</div>
-                  <div className="bento-card-meta">Optimal level</div>
+                  <div className="donezo-stat-value">{todayStats.completedTreatments}</div>
+                  <div className="donezo-stat-meta">
+                    <TrendingUp className="donezo-stat-trend" />
+                    Increased from last month
+                  </div>
+                </div>
+
+                {/* Upcoming Appointments */}
+                <div className="donezo-stat-card">
+                  <div className="donezo-stat-header">
+                    <span className="donezo-stat-label">Upcoming Appointments</span>
+                    <Calendar className="donezo-stat-icon" />
+                  </div>
+                  <div className="donezo-stat-value">{todayStats.upcomingAppointments}</div>
+                  <div className="donezo-stat-meta">
+                    <Clock className="donezo-stat-trend" />
+                    Increased from last month
+                  </div>
+                </div>
+
+                {/* Pending Approvals */}
+                <div className="donezo-stat-card">
+                  <div className="donezo-stat-header">
+                    <span className="donezo-stat-label">Pending Review</span>
+                    <FileText className="donezo-stat-icon" />
+                  </div>
+                  <div className="donezo-stat-value">{todayStats.pendingApprovals}</div>
+                  <div className="donezo-stat-meta">On Review</div>
                 </div>
               </div>
 
               {/* Content Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Today's Schedule */}
-                <div className="bento-list">
-                  <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-900">Today's Schedule</h3>
-                    <p className="text-gray-600">Upcoming appointments</p>
+              <div className="donezo-content-grid">
+                {/* Patient Analytics Chart */}
+                <div className="donezo-section">
+                  <div className="donezo-section-header">
+                    <h3 className="donezo-section-title">Patient Analytics</h3>
                   </div>
-
-                  {upcomingAppointments.map((appointment) => (
-                    <div key={appointment.id} className="bento-list-item">
-                      <div className="bento-list-icon bg-blue-100 text-blue-600">
-                        <Clock className="w-5 h-5" />
-                      </div>
-                      <div className="bento-list-content">
-                        <div className="bento-list-title">{appointment.patient}</div>
-                        <div className="bento-list-subtitle">{appointment.treatment}</div>
-                      </div>
-                      <div className="bento-list-meta">{appointment.time}</div>
+                  <div className="donezo-chart-container">
+                    <div className="donezo-chart-bars">
+                      {[40, 80, 60, 90, 30, 70, 50, 85, 45, 75].map((height, i) => (
+                        <div
+                          key={i}
+                          className="donezo-chart-bar"
+                          style={{ height: `${height}%` }}
+                        />
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
 
-                {/* Patient Status */}
-                <div className="bento-list">
-                  <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-900">Patient Status</h3>
-                    <p className="text-gray-600">Current patient flow</p>
+                {/* Reminders */}
+                <div className="donezo-section">
+                  <div className="donezo-section-header">
+                    <h3 className="donezo-section-title">Reminders</h3>
                   </div>
 
-                  {recentPatients.map((patient) => (
-                    <div key={patient.id} className="bento-list-item">
-                      <div className="bento-list-icon bg-pink-100 text-pink-600">
-                        {patient.name.charAt(0)}
-                      </div>
-                      <div className="bento-list-content">
-                        <div className="bento-list-title">{patient.name}</div>
-                        <div className="bento-list-subtitle">{patient.time}</div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${
-                          patient.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                          patient.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                  <div className="donezo-reminder-item">
+                    <div className="donezo-reminder-icon">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <div className="donezo-reminder-content">
+                      <div className="donezo-reminder-title">Weekly Team Meeting</div>
+                      <div className="donezo-reminder-time">Today 3:00 - 04:00 pm</div>
+                    </div>
+                    <button className="donezo-start-button">Start Meeting</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Grid */}
+              <div className="donezo-bottom-grid">
+                {/* Team Collaboration */}
+                <div className="donezo-section">
+                  <div className="donezo-section-header">
+                    <h3 className="donezo-section-title">Team Collaboration</h3>
+                    <button className="donezo-section-action">
+                      <Plus className="w-3 h-3" />
+                      Add Member
+                    </button>
+                  </div>
+
+                  <div className="donezo-team-list">
+                    {recentPatients.map((patient) => (
+                      <div key={patient.id} className="donezo-team-member">
+                        <div className="donezo-team-avatar">{patient.avatar}</div>
+                        <div className="donezo-team-info">
+                          <div className="donezo-team-name">{patient.name}</div>
+                          <div className="donezo-team-role">Working on • {patient.treatment}</div>
+                        </div>
+                        <span className={`donezo-team-status ${patient.status.toLowerCase().replace(' ', '')}`}>
                           {patient.status}
                         </span>
                       </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Practice Progress */}
+                <div className="donezo-section">
+                  <div className="donezo-section-header">
+                    <h3 className="donezo-section-title">Practice Progress</h3>
+                  </div>
+
+                  <div className="donezo-progress-circle">
+                    <svg className="donezo-progress-svg" viewBox="0 0 120 120">
+                      <circle
+                        className="donezo-progress-bg"
+                        cx="60"
+                        cy="60"
+                        r="54"
+                      />
+                      <circle
+                        className="donezo-progress-bar"
+                        cx="60"
+                        cy="60"
+                        r="54"
+                        strokeDasharray={339.292}
+                        strokeDashoffset={200}
+                      />
+                    </svg>
+                    <div className="donezo-progress-text">41%</div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>Practice Progress</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '12px' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></div>
+                        Completed
+                      </span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6b7280' }}></div>
+                        In Progress
+                      </span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#e5e7eb' }}></div>
+                        Pending
+                      </span>
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Time Tracker */}
+                <div className="donezo-section donezo-time-tracker">
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Time Tracker</h3>
+                  <div className="donezo-time-display">{formatTime(currentTime)}</div>
+                  <div className="donezo-time-controls">
+                    <button className="donezo-time-button">
+                      <Play className="w-4 h-4" />
+                    </button>
+                    <button className="donezo-time-button">
+                      <Square className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Section - Mobile App Download */}
+              <div style={{ marginTop: '24px' }}>
+                <div className="donezo-section donezo-mobile-app">
+                  <div className="donezo-mobile-title">Download our Mobile App</div>
+                  <div className="donezo-mobile-subtitle">Get our app for your IOS and Android device</div>
+                  <button className="donezo-download-button">
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
                 </div>
               </div>
             </>
@@ -384,15 +458,13 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
         </div>
       </div>
 
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setActiveTab("appointment")}
-        className="bento-fab"
-        title="New Appointment"
-      >
-        <Plus className="w-8 h-8" />
-        <div className="bento-fab-glow"></div>
-      </button>
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }
