@@ -20,7 +20,7 @@ import { AppointmentsPage } from "./AppointmentsPage";
 import { PaymentsPage } from "./PaymentsPage";
 import { AppointmentStatusManager } from "./AppointmentStatusManager";
 import { DentistsPage } from "./DentistsPage";
-import { ProductionPayrollPage } from "./ProductionPayrollPage";
+import { KreativPayrollPage } from "./KreativPayrollPage";
 import { ServiceCatalogPage } from "./ServiceCatalogPage";
 import { ProductionFinancialPage } from "./ProductionFinancialPage";
 import { ProductionPatientPage } from "./ProductionPatientPage";
@@ -44,7 +44,7 @@ const navItems: { tab: TabType; label: string; icon: React.ElementType; badge?: 
   { tab: "financial", label: "Analytics", icon: BarChart3 },
   { tab: "dentists", label: "Team", icon: Users },
   { tab: "service-catalog", label: "Settings", icon: Settings },
-  { tab: "kreativ-payroll", label: "Payroll", icon: Wallet },
+   { tab: "kreativ-payroll", label: "KreativPayroll", icon: Wallet },
   { tab: "attendance", label: "Attendance", icon: Clock },
   { tab: "inventory", label: "Inventory", icon: Package },
   { tab: "help", label: "Help", icon: HelpCircle },
@@ -55,8 +55,8 @@ const navConfig: Record<UserRole, TabType[]> = {
   it_admin: ["dashboard", "appointments-list", "patient-record", "financial", "dentists", "service-catalog", "kreativ-payroll", "attendance", "inventory", "help"],
   dentist: ["dashboard", "appointments-list", "patient-record", "financial", "dentists", "service-catalog", "help"],
   staff: ["dashboard", "appointments-list", "patient-record", "attendance", "help"],
-  receptionist: ["dashboard", "appointments-list", "patient-record", "help"],
-  front_desk: ["dashboard", "appointments-list", "patient-record", "help"],
+  receptionist: ["dashboard", "appointments-list", "patient-record", "financial", "inventory", "help"],
+  front_desk: ["dashboard", "appointments-list", "patient-record", "financial", "kreativ-payroll", "attendance", "inventory", "help"],
 };
 
 
@@ -81,7 +81,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           <div className="donezo-logo-icon">
             <Heart className="w-4 h-4" />
           </div>
-          <div className="donezo-logo-text">DentalPro</div>
+          <div className="donezo-logo-text">KreativDental+</div>
         </div>
 
         {/* Navigation */}
@@ -155,7 +155,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
               </div>
               <div className="donezo-user-info">
                 <div className="donezo-user-name">{currentUser.name}</div>
-                <div className="donezo-user-email">{currentUser.role}@dentalcare.com</div>
+                <div className="donezo-user-email">{currentUser.role}@kreativdental.com</div>
               </div>
             </div>
           </div>
@@ -176,7 +176,7 @@ export function MainLayout({ currentUser, onLogout }: MainLayoutProps) {
           {activeTab === "patient-record" && <ProductionPatientPage currentUser={currentUser} />}
           {activeTab === "financial" && <ProductionFinancialPage currentUser={currentUser} />}
           {activeTab === "service-catalog" && <ServiceCatalogPage />}
-          {activeTab === "kreativ-payroll" && <ProductionPayrollPage currentUser={currentUser} />}
+          {activeTab === "kreativ-payroll" && <KreativPayrollPage />}
           {activeTab === "attendance" && <ProductionAttendancePage currentUser={currentUser} />}
           {activeTab === "inventory" && <ProductionInventoryPage currentUser={currentUser} />}
           {activeTab === "help" && <HelpPage />}

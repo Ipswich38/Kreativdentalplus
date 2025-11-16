@@ -62,7 +62,7 @@ export function LoginPage() {
             color: '#1f2937',
             marginBottom: '12px'
           }}>
-            DentalPro
+            KreativDental+
           </h1>
           <p style={{
             fontSize: '16px',
