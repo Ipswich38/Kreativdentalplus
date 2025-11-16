@@ -1,602 +1,359 @@
-import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Badge } from "./ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Search, Plus, Edit, User, Phone, Mail, Calendar, FileText } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from 'react';
+import {
+  Users,
+  Plus,
+  Search,
+  Eye,
+  Edit,
+  Phone,
+  Mail,
+  Calendar,
+  MapPin,
+  Heart,
+  Activity,
+  Clock,
+  Download
+} from 'lucide-react';
+import { PageWrapper } from './PageWrapper';
+import type { User } from "../data/users";
 
 interface Patient {
   id: string;
   patient_number: string;
   first_name: string;
   last_name: string;
-  date_of_birth: string;
-  phone: string;
   email: string;
+  phone: string;
+  date_of_birth: string;
   address: string;
-  emergency_contact_name?: string;
-  emergency_contact_phone?: string;
-  medical_conditions?: string;
-  allergies?: string;
-  insurance_provider?: string;
-  insurance_number?: string;
-  age?: number;
-  gender?: string;
-  city?: string;
-  province?: string;
-  medications?: string;
-  status?: string;
-  last_visit?: string;
-  created_at: string;
-  updated_at: string;
+  last_visit: string;
+  next_appointment?: string;
+  status: string;
+  medical_history: string[];
+  total_visits: number;
+  outstanding_balance: number;
 }
 
-export function ProductionPatientPage() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
-  const [isEditPatientOpen, setIsEditPatientOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+interface ProductionPatientPageProps {
+  currentUser: User;
+}
 
-  const [newPatient, setNewPatient] = useState({
-    first_name: "",
-    last_name: "",
-    date_of_birth: "",
-    phone: "",
-    email: "",
-    address: "",
-    emergency_contact_name: "",
-    emergency_contact_phone: "",
-    medical_conditions: "",
-    allergies: "",
-    insurance_provider: "",
-    insurance_number: "",
-    gender: "",
-    city: "",
-    province: "",
-    medications: ""
+export function ProductionPatientPage({ currentUser }: ProductionPatientPageProps) {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  // Mock data for patients
+  useEffect(() => {
+    const mockPatients: Patient[] = [
+      {
+        id: '1',
+        patient_number: 'PAT-001',
+        first_name: 'Sarah',
+        last_name: 'Johnson',
+        email: 'sarah.johnson@email.com',
+        phone: '+1 (555) 123-4567',
+        date_of_birth: '1985-03-15',
+        address: '123 Main St, City, State 12345',
+        last_visit: '2024-01-10',
+        next_appointment: '2024-02-15',
+        status: 'active',
+        medical_history: ['No allergies', 'Regular cleanings'],
+        total_visits: 12,
+        outstanding_balance: 0
+      },
+      {
+        id: '2',
+        patient_number: 'PAT-002',
+        first_name: 'Robert',
+        last_name: 'Martinez',
+        email: 'r.martinez@email.com',
+        phone: '+1 (555) 234-5678',
+        date_of_birth: '1978-07-22',
+        address: '456 Oak Ave, City, State 12345',
+        last_visit: '2024-01-08',
+        next_appointment: '2024-01-25',
+        status: 'active',
+        medical_history: ['Diabetes', 'High blood pressure'],
+        total_visits: 8,
+        outstanding_balance: 250.00
+      },
+      {
+        id: '3',
+        patient_number: 'PAT-003',
+        first_name: 'Lisa',
+        last_name: 'Thompson',
+        email: 'lisa.t@email.com',
+        phone: '+1 (555) 345-6789',
+        date_of_birth: '1992-11-03',
+        address: '789 Pine Rd, City, State 12345',
+        last_visit: '2024-01-05',
+        status: 'active',
+        medical_history: ['No known allergies'],
+        total_visits: 5,
+        outstanding_balance: 0
+      },
+      {
+        id: '4',
+        patient_number: 'PAT-004',
+        first_name: 'David',
+        last_name: 'Wilson',
+        email: 'david.w@email.com',
+        phone: '+1 (555) 456-7890',
+        date_of_birth: '1965-09-12',
+        address: '321 Elm St, City, State 12345',
+        last_visit: '2023-11-20',
+        next_appointment: '2024-02-01',
+        status: 'inactive',
+        medical_history: ['Periodontal disease', 'Root canal history'],
+        total_visits: 15,
+        outstanding_balance: 150.00
+      }
+    ];
+    setPatients(mockPatients);
+  }, []);
+
+  const filteredPatients = patients.filter(patient => {
+    const matchesSearch =
+      patient.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.patient_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.phone.includes(searchTerm);
+    const matchesStatus = statusFilter === 'all' || patient.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
-  // Fetch patients from Supabase
-  const fetchPatients = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setPatients(data || []);
-      setFilteredPatients(data || []);
-    } catch (error: any) {
-      console.error('Error fetching patients:', error);
-      toast.error('Failed to load patients');
-    } finally {
-      setLoading(false);
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'active';
+      case 'inactive':
+        return 'inactive';
+      case 'new':
+        return 'new';
+      default:
+        return 'inactive';
     }
   };
 
-  // Generate patient number
-  const generatePatientNumber = () => {
-    const year = new Date().getFullYear();
-    const count = patients.length + 1;
-    return `PT-${year}-${String(count).padStart(4, '0')}`;
-  };
-
-  // Calculate age from date of birth
-  const calculateAge = (dateOfBirth: string): number => {
+  const calculateAge = (dateOfBirth: string) => {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-
     return age;
   };
 
-  // Create new patient
-  const handleCreatePatient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  // Calculate totals
+  const totalPatients = patients.length;
+  const activePatients = patients.filter(p => p.status === 'active').length;
+  const newPatients = patients.filter(p => p.status === 'new').length;
+  const totalOutstanding = patients.reduce((sum, p) => sum + p.outstanding_balance, 0);
 
-    try {
-      const age = newPatient.date_of_birth ? calculateAge(newPatient.date_of_birth) : null;
-
-      const { data, error } = await supabase
-        .from('patients')
-        .insert([{
-          ...newPatient,
-          patient_number: generatePatientNumber(),
-          age,
-          status: 'active'
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast.success('Patient created successfully!');
-      setIsNewPatientOpen(false);
-      setNewPatient({
-        first_name: "",
-        last_name: "",
-        date_of_birth: "",
-        phone: "",
-        email: "",
-        address: "",
-        emergency_contact_name: "",
-        emergency_contact_phone: "",
-        medical_conditions: "",
-        allergies: "",
-        insurance_provider: "",
-        insurance_number: "",
-        gender: "",
-        city: "",
-        province: "",
-        medications: ""
-      });
-      fetchPatients();
-    } catch (error: any) {
-      console.error('Error creating patient:', error);
-      toast.error('Failed to create patient');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update patient
-  const handleUpdatePatient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPatient) return;
-
-    setLoading(true);
-    try {
-      const age = selectedPatient.date_of_birth ? calculateAge(selectedPatient.date_of_birth) : null;
-
-      const { error } = await supabase
-        .from('patients')
-        .update({
-          ...selectedPatient,
-          age,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', selectedPatient.id);
-
-      if (error) throw error;
-
-      toast.success('Patient updated successfully!');
-      setIsEditPatientOpen(false);
-      setSelectedPatient(null);
-      fetchPatients();
-    } catch (error: any) {
-      console.error('Error updating patient:', error);
-      toast.error('Failed to update patient');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Search patients
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (!query.trim()) {
-      setFilteredPatients(patients);
-      return;
-    }
-
-    const filtered = patients.filter(patient =>
-      `${patient.first_name} ${patient.last_name}`.toLowerCase().includes(query.toLowerCase()) ||
-      patient.patient_number.toLowerCase().includes(query.toLowerCase()) ||
-      patient.phone?.includes(query) ||
-      patient.email?.toLowerCase().includes(query.toLowerCase())
-    );
-
-    setFilteredPatients(filtered);
-  };
-
-  // Load patients on component mount
-  useEffect(() => {
-    fetchPatients();
-  }, []);
+  const pageActions = (
+    <>
+      <button className="donezo-header-button secondary">
+        <Download className="w-4 h-4" />
+        Export
+      </button>
+      <button className="donezo-header-button">
+        <Plus className="w-4 h-4" />
+        Add Patient
+      </button>
+    </>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Patient Records</h2>
-          <p className="text-muted-foreground">
-            Manage patient information and medical records
-          </p>
+    <PageWrapper
+      title="Patients"
+      subtitle="Manage patient records and medical information"
+      actions={pageActions}
+    >
+      {/* Stats Grid */}
+      <div className="donezo-stats-grid" style={{ marginBottom: '32px' }}>
+        <div className="donezo-stat-card primary">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Total Patients</span>
+            <Users className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value">{totalPatients}</div>
+          <div className="donezo-stat-meta">Registered patients</div>
         </div>
 
-        <Dialog open={isNewPatientOpen} onOpenChange={setIsNewPatientOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Patient
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Patient</DialogTitle>
-            </DialogHeader>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Active</span>
+            <Activity className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value">{activePatients}</div>
+          <div className="donezo-stat-meta">Active patients</div>
+        </div>
 
-            <form onSubmit={handleCreatePatient} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="first_name">First Name *</Label>
-                  <Input
-                    id="first_name"
-                    value={newPatient.first_name}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, first_name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="last_name">Last Name *</Label>
-                  <Input
-                    id="last_name"
-                    value={newPatient.last_name}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, last_name: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">New</span>
+            <Heart className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value">{newPatients}</div>
+          <div className="donezo-stat-meta">This month</div>
+        </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="date_of_birth">Date of Birth</Label>
-                  <Input
-                    id="date_of_birth"
-                    type="date"
-                    value={newPatient.date_of_birth}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, date_of_birth: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="gender">Gender</Label>
-                  <Select value={newPatient.gender} onValueChange={(value) => setNewPatient(prev => ({ ...prev, gender: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input
-                    id="phone"
-                    value={newPatient.phone}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+63 917-123-4567"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newPatient.email}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, email: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={newPatient.address}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, address: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    value={newPatient.city}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, city: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="province">Province</Label>
-                  <Input
-                    id="province"
-                    value={newPatient.province}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, province: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              {/* Emergency Contact */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="emergency_contact_name">Emergency Contact Name</Label>
-                  <Input
-                    id="emergency_contact_name"
-                    value={newPatient.emergency_contact_name}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, emergency_contact_name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emergency_contact_phone">Emergency Contact Phone</Label>
-                  <Input
-                    id="emergency_contact_phone"
-                    value={newPatient.emergency_contact_phone}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, emergency_contact_phone: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              {/* Medical Information */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="medical_conditions">Medical Conditions</Label>
-                  <Textarea
-                    id="medical_conditions"
-                    value={newPatient.medical_conditions}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, medical_conditions: e.target.value }))}
-                    placeholder="List any medical conditions..."
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="allergies">Allergies</Label>
-                  <Textarea
-                    id="allergies"
-                    value={newPatient.allergies}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, allergies: e.target.value }))}
-                    placeholder="List any allergies..."
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="medications">Current Medications</Label>
-                  <Textarea
-                    id="medications"
-                    value={newPatient.medications}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, medications: e.target.value }))}
-                    placeholder="List current medications..."
-                  />
-                </div>
-              </div>
-
-              {/* Insurance Information */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="insurance_provider">Insurance Provider</Label>
-                  <Input
-                    id="insurance_provider"
-                    value={newPatient.insurance_provider}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, insurance_provider: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="insurance_number">Insurance Number</Label>
-                  <Input
-                    id="insurance_number"
-                    value={newPatient.insurance_number}
-                    onChange={(e) => setNewPatient(prev => ({ ...prev, insurance_number: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsNewPatientOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Patient'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Outstanding</span>
+            <Clock className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value">${totalOutstanding.toFixed(2)}</div>
+          <div className="donezo-stat-meta">Total balance due</div>
+        </div>
       </div>
 
-      {/* Search and Filter */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Patient Directory</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="relative mb-4">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search patients by name, ID, phone, or email..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="pl-8"
+      {/* Filters and Search */}
+      <div className="donezo-section" style={{ marginBottom: '24px' }}>
+        <div className="appointments-filter-bar">
+          <div className="donezo-search appointments-search-wrapper">
+            <Search className="donezo-search-icon" />
+            <input
+              type="text"
+              placeholder="Search patients..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="donezo-search-input"
             />
           </div>
 
-          {loading ? (
-            <div className="text-center py-8">Loading patients...</div>
-          ) : filteredPatients.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchQuery ? 'No patients found matching your search.' : 'No patients registered yet.'}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="donezo-select"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="new">New</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Patients List */}
+      <div className="donezo-section">
+        <div className="donezo-section-header">
+          <h3 className="donezo-section-title">All Patients ({filteredPatients.length})</h3>
+        </div>
+
+        <div className="appointments-list">
+          {filteredPatients.map((patient) => (
+            <div
+              key={patient.id}
+              className="donezo-patient-card"
+            >
+              <div className="donezo-patient-card-header">
+                <div className="donezo-patient-card-main-info">
+                  <div className="donezo-patient-card-patient-info">
+                    <div className={`donezo-patient-card-avatar ${getStatusClass(patient.status)}`}>
+                      {patient.first_name.charAt(0)}{patient.last_name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="donezo-patient-card-name">
+                        {patient.first_name} {patient.last_name}
+                      </h4>
+                      <p className="donezo-patient-card-details">
+                        {patient.patient_number} • Age {calculateAge(patient.date_of_birth)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="donezo-patient-card-grid">
+                    <div className="donezo-patient-card-grid-item">
+                      <Mail />
+                      <span>
+                        {patient.email}
+                      </span>
+                    </div>
+                    <div className="donezo-patient-card-grid-item">
+                      <Phone />
+                      <span>
+                        {patient.phone}
+                      </span>
+                    </div>
+                    <div className="donezo-patient-card-grid-item">
+                      <Calendar />
+                      <span>
+                        Last visit: {new Date(patient.last_visit).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="donezo-patient-card-grid-item">
+                      <MapPin />
+                      <span>
+                        {patient.address}
+                      </span>
+                    </div>
+                  </div>
+
+                  {patient.medical_history.length > 0 && (
+                    <div className="donezo-patient-card-medical-history">
+                      <p>
+                        <strong>Medical History:</strong> {patient.medical_history.join(', ')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="donezo-patient-card-status-actions">
+                  <div className={`donezo-patient-card-status ${getStatusClass(patient.status)}`}>
+                    {patient.status}
+                  </div>
+
+                  <div className="donezo-patient-card-info-block">
+                    <div className="visits">
+                      {patient.total_visits} visits
+                    </div>
+                    {patient.outstanding_balance > 0 && (
+                      <div className="balance">
+                        Balance: ${patient.outstanding_balance.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+
+                  {patient.next_appointment && (
+                    <div className="next-appointment">
+                      Next: {new Date(patient.next_appointment).toLocaleDateString()}
+                    </div>
+                  )}
+
+                  <div className="donezo-patient-card-actions">
+                    <button className="donezo-icon-button">
+                      <Eye />
+                    </button>
+                    <button className="donezo-icon-button">
+                      <Edit />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Patient #</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Age/Gender</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Last Visit</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPatients.map((patient) => (
-                    <TableRow key={patient.id}>
-                      <TableCell className="font-mono text-sm">
-                        {patient.patient_number}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium">
-                              {patient.first_name} {patient.last_name}
-                            </div>
-                            {patient.email && (
-                              <div className="text-sm text-muted-foreground">
-                                {patient.email}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {patient.age && patient.gender ? (
-                          <span>{patient.age}y, {patient.gender}</span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {patient.phone && (
-                          <div className="flex items-center space-x-1">
-                            <Phone className="h-3 w-3" />
-                            <span className="text-sm">{patient.phone}</span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {patient.last_visit ? (
-                          <span className="text-sm">
-                            {new Date(patient.last_visit).toLocaleDateString()}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">Never</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={patient.status === 'active' ? 'default' : 'secondary'}>
-                          {patient.status || 'Active'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedPatient(patient);
-                            setIsEditPatientOpen(true);
-                          }}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          ))}
+        </div>
 
-      {/* Edit Patient Dialog */}
-      {selectedPatient && (
-        <Dialog open={isEditPatientOpen} onOpenChange={setIsEditPatientOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Patient: {selectedPatient.first_name} {selectedPatient.last_name}</DialogTitle>
-            </DialogHeader>
-
-            <form onSubmit={handleUpdatePatient} className="space-y-6">
-              {/* Similar form structure as new patient, but with selectedPatient values */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit_first_name">First Name *</Label>
-                  <Input
-                    id="edit_first_name"
-                    value={selectedPatient.first_name}
-                    onChange={(e) => setSelectedPatient(prev => prev ? { ...prev, first_name: e.target.value } : null)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_last_name">Last Name *</Label>
-                  <Input
-                    id="edit_last_name"
-                    value={selectedPatient.last_name}
-                    onChange={(e) => setSelectedPatient(prev => prev ? { ...prev, last_name: e.target.value } : null)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="edit_date_of_birth">Date of Birth</Label>
-                  <Input
-                    id="edit_date_of_birth"
-                    type="date"
-                    value={selectedPatient.date_of_birth}
-                    onChange={(e) => setSelectedPatient(prev => prev ? { ...prev, date_of_birth: e.target.value } : null)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_phone">Phone Number *</Label>
-                  <Input
-                    id="edit_phone"
-                    value={selectedPatient.phone}
-                    onChange={(e) => setSelectedPatient(prev => prev ? { ...prev, phone: e.target.value } : null)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_email">Email</Label>
-                  <Input
-                    id="edit_email"
-                    type="email"
-                    value={selectedPatient.email || ''}
-                    onChange={(e) => setSelectedPatient(prev => prev ? { ...prev, email: e.target.value } : null)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsEditPatientOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Updating...' : 'Update Patient'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+        {filteredPatients.length === 0 && (
+          <div className="no-appointments">
+            <Users />
+            <h3>
+              No patients found
+            </h3>
+            <p>
+              {searchTerm || statusFilter !== 'all'
+                ? 'Try adjusting your search or filters'
+                : 'Start by adding your first patient'
+              }
+            </p>
+          </div>
+        )}
+      </div>
+    </PageWrapper>
   );
 }

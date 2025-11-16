@@ -1,19 +1,11 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Package, AlertTriangle, TrendingDown, TrendingUp, Edit, Trash2, Filter, Download } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "./ui/dialog";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
+import { PageWrapper } from "./PageWrapper";
 
+// ... (interfaces remain the same)
 interface InventoryItem {
   id: string;
   item_code: string;
@@ -383,491 +375,461 @@ export function ProductionInventoryPage({ currentUser }: ProductionInventoryPage
 
   const getStockStatus = (item: InventoryItem) => {
     if (item.current_stock < item.minimum_stock * 0.5) {
-      return { label: "Critical", color: "bg-red-500", variant: "destructive" as const };
+      return { label: "Critical", className: "inactive" };
     } else if (item.current_stock <= item.minimum_stock) {
-      return { label: "Low", color: "bg-orange-500", variant: "secondary" as const };
+      return { label: "Low", className: "on-leave" };
     } else {
-      return { label: "Good", color: "bg-green-500", variant: "default" as const };
+      return { label: "Good", className: "active" };
     }
   };
 
+  const pageActions = (
+    <div className="flex gap-2">
+      {canManageInventory && (
+        <button className="donezo-header-button" onClick={() => setIsAddItemDialogOpen(true)}>
+          <Plus className="w-4 h-4" />
+          Add Item
+        </button>
+      )}
+
+      <button className="donezo-header-button secondary" onClick={exportInventoryData}>
+        <Download className="w-4 h-4" />
+        Export
+      </button>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">Inventory Management</h2>
-          <p className="text-muted-foreground">
-            Manage supplies, equipment, PPE, and consumables
+    <PageWrapper
+      title="Inventory Management"
+      subtitle="Manage supplies, equipment, PPE, and consumables"
+      actions={pageActions}
+    >
+      {/* Stats Cards */}
+      <div className="dentists-stats-grid" style={{ marginBottom: '32px' }}>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Total Items</span>
+            <Package className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value">{inventory.length}</div>
+          <p className="donezo-stat-meta">
+            Across {new Set(inventory.map(i => i.category)).size} categories
           </p>
         </div>
 
-        <div className="flex gap-2">
-          {canManageInventory && (
-            <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{editingItem ? 'Edit' : 'Add'} Inventory Item</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleAddItem} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="item_code">Item Code *</Label>
-                      <Input
-                        value={newItem.item_code}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, item_code: e.target.value }))}
-                        placeholder="e.g. SUP-001"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="name">Name *</Label>
-                      <Input
-                        value={newItem.name}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="e.g. Dental Gloves"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Category *</Label>
-                      <Select
-                        value={newItem.category}
-                        onValueChange={(value: any) => setNewItem(prev => ({ ...prev, category: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="supplies">Supplies</SelectItem>
-                          <SelectItem value="equipment">Equipment</SelectItem>
-                          <SelectItem value="ppe">PPE</SelectItem>
-                          <SelectItem value="consumables">Consumables</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="unit_type">Unit Type *</Label>
-                      <Input
-                        value={newItem.unit_type}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, unit_type: e.target.value }))}
-                        placeholder="e.g. box, pieces, units"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="current_stock">Current Stock *</Label>
-                      <Input
-                        type="number"
-                        value={newItem.current_stock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, current_stock: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="minimum_stock">Minimum Stock *</Label>
-                      <Input
-                        type="number"
-                        value={newItem.minimum_stock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, minimum_stock: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="maximum_stock">Maximum Stock</Label>
-                      <Input
-                        type="number"
-                        value={newItem.maximum_stock}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, maximum_stock: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="cost_per_unit">Cost per Unit *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={newItem.cost_per_unit}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, cost_per_unit: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="supplier">Supplier</Label>
-                      <Input
-                        value={newItem.supplier}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, supplier: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        value={newItem.location}
-                        onChange={(e) => setNewItem(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="e.g. Storage Room A"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      value={newItem.description}
-                      onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Additional details about the item..."
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => {
-                      setIsAddItemDialogOpen(false);
-                      setEditingItem(null);
-                      resetItemForm();
-                    }}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={loading}>
-                      {loading ? 'Saving...' : editingItem ? 'Update' : 'Add'} Item
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )}
-
-          <Button variant="outline" onClick={exportInventoryData}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Low Stock</span>
+            <AlertTriangle className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value" style={{ color: 'var(--accent-orange)' }}>{lowStockItems.length}</div>
+          <p className="donezo-stat-meta">
+            Items below minimum threshold
+          </p>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Items</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{inventory.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Across {new Set(inventory.map(i => i.category)).size} categories
-            </p>
-          </CardContent>
-        </Card>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Critical Stock</span>
+            <TrendingDown className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value" style={{ color: '#ef4444' }}>{criticalStockItems.length}</div>
+          <p className="donezo-stat-meta">
+            Items requiring immediate attention
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{lowStockItems.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Items below minimum threshold
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Stock</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalStockItems.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Items requiring immediate attention
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">₱{totalValue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Current inventory value
-            </p>
-          </CardContent>
-        </Card>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Total Value</span>
+            <TrendingUp className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value" style={{ color: 'var(--primary-green)' }}>₱{totalValue.toLocaleString()}</div>
+          <p className="donezo-stat-meta">
+            Current inventory value
+          </p>
+        </div>
       </div>
 
       {/* Low Stock Alerts */}
       {lowStockItems.length > 0 && (
-        <Card className="border-l-4 border-l-orange-500 bg-orange-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-900">
-              <AlertTriangle className="w-5 h-5" />
-              Low Stock Alerts ({lowStockItems.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lowStockItems.slice(0, 6).map(item => {
-                const status = getStockStatus(item);
-                return (
-                  <div key={item.id} className="p-4 bg-white rounded-lg border border-orange-200">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">{item.name}</h4>
-                      <Badge variant={status.variant} className="text-xs">
-                        {status.label}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Current: {item.current_stock} {item.unit_type}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Minimum: {item.minimum_stock} {item.unit_type}
-                    </p>
-                    {canManageInventory && (
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          setSelectedItem(item);
-                          setIsStockMovementDialogOpen(true);
-                        }}
-                      >
-                        Add Stock
-                      </Button>
-                    )}
+        <div className="donezo-inventory-alert" style={{ marginBottom: '32px' }}>
+          <h3 className="donezo-inventory-alert-title">
+            <AlertTriangle />
+            Low Stock Alerts ({lowStockItems.length})
+          </h3>
+          <div className="donezo-inventory-alert-grid">
+            {lowStockItems.slice(0, 6).map(item => {
+              const status = getStockStatus(item);
+              return (
+                <div key={item.id} className="donezo-inventory-alert-item">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">{item.name}</h4>
+                    <span className={`donezo-dentist-badge ${status.className}`}>{status.label}</span>
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Current: {item.current_stock} {item.unit_type}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Minimum: {item.minimum_stock} {item.unit_type}
+                  </p>
+                  {canManageInventory && (
+                    <button
+                      className="donezo-header-button"
+                      style={{ width: '100%' }}
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setIsStockMovementDialogOpen(true);
+                      }}
+                    >
+                      Add Stock
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input
+      <div className="appointments-filter-bar" style={{ marginBottom: '24px' }}>
+        <div className="donezo-search appointments-search-wrapper">
+          <Search className="donezo-search-icon" />
+          <input
             placeholder="Search by name or item code..."
-            className="pl-10"
+            className="donezo-search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="supplies">Supplies</SelectItem>
-            <SelectItem value="equipment">Equipment</SelectItem>
-            <SelectItem value="ppe">PPE</SelectItem>
-            <SelectItem value="consumables">Consumables</SelectItem>
-          </SelectContent>
-        </Select>
+        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="donezo-select" style={{ width: '200px' }}>
+          <option value="all">All Categories</option>
+          <option value="supplies">Supplies</option>
+          <option value="equipment">Equipment</option>
+          <option value="ppe">PPE</option>
+          <option value="consumables">Consumables</option>
+        </select>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Inventory Overview</TabsTrigger>
-          <TabsTrigger value="movements">Stock Movements</TabsTrigger>
-        </TabsList>
+      <div className="donezo-tabs">
+        <div className="donezo-tabs-list">
+          <button className={`donezo-tabs-trigger ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Inventory Overview</button>
+          <button className={`donezo-tabs-trigger ${activeTab === 'movements' ? 'active' : ''}`} onClick={() => setActiveTab('movements')}>Stock Movements</button>
+        </div>
 
-        <TabsContent value="overview">
-          <Card>
-            <CardContent className="p-6">
-              {loading ? (
-                <div className="text-center py-8">Loading inventory...</div>
-              ) : filteredInventory.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No inventory items found
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Current Stock</TableHead>
-                        <TableHead>Minimum Stock</TableHead>
-                        <TableHead>Unit Cost</TableHead>
-                        <TableHead>Total Value</TableHead>
-                        <TableHead>Status</TableHead>
-                        {canManageInventory && <TableHead>Actions</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredInventory.map((item) => {
-                        const status = getStockStatus(item);
-                        return (
-                          <TableRow key={item.id}>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{item.name}</div>
-                                <div className="text-sm text-muted-foreground">{item.item_code}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell className="capitalize">
-                              <Badge variant="outline">{item.category}</Badge>
-                            </TableCell>
-                            <TableCell>
-                              {item.current_stock} {item.unit_type}
-                            </TableCell>
-                            <TableCell>
-                              {item.minimum_stock} {item.unit_type}
-                            </TableCell>
-                            <TableCell>₱{item.cost_per_unit.toFixed(2)}</TableCell>
-                            <TableCell className="font-medium">
-                              ₱{(item.current_stock * item.cost_per_unit).toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={status.variant}>{status.label}</Badge>
-                            </TableCell>
-                            {canManageInventory && (
-                              <TableCell>
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setSelectedItem(item);
-                                      setIsStockMovementDialogOpen(true);
-                                    }}
-                                  >
-                                    Stock
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setEditingItem(item);
-                                      setNewItem({
-                                        item_code: item.item_code,
-                                        name: item.name,
-                                        category: item.category,
-                                        unit_type: item.unit_type,
-                                        current_stock: item.current_stock.toString(),
-                                        minimum_stock: item.minimum_stock.toString(),
-                                        maximum_stock: item.maximum_stock?.toString() || '',
-                                        cost_per_unit: item.cost_per_unit.toString(),
-                                        supplier: item.supplier || '',
-                                        location: item.location || '',
-                                        description: item.description || ''
-                                      });
-                                      setIsAddItemDialogOpen(true);
-                                    }}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleDeleteItem(item.id)}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="movements">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Stock Movements</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Track all stock changes and movements
-              </p>
-            </CardHeader>
-            <CardContent>
-              {stockMovements.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No stock movements recorded
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Performed By</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {stockMovements.map((movement) => (
-                        <TableRow key={movement.id}>
-                          <TableCell>
-                            {new Date(movement.movement_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
+        <div className={`donezo-tabs-content ${activeTab === 'overview' ? 'active' : ''}`}>
+          <div className="donezo-section">
+            {loading ? (
+              <div className="text-center py-8">Loading inventory...</div>
+            ) : filteredInventory.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No inventory items found
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="donezo-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Category</th>
+                      <th>Current Stock</th>
+                      <th>Minimum Stock</th>
+                      <th>Unit Cost</th>
+                      <th>Total Value</th>
+                      <th>Status</th>
+                      {canManageInventory && <th>Actions</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInventory.map((item) => {
+                      const status = getStockStatus(item);
+                      return (
+                        <tr key={item.id}>
+                          <td>
                             <div>
-                              <div className="font-medium">{movement.item_name}</div>
-                              <div className="text-sm text-muted-foreground">{movement.item_code}</div>
+                              <div className="font-medium">{item.name}</div>
+                              <div className="text-sm text-muted-foreground">{item.item_code}</div>
                             </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              movement.movement_type === 'in' ? 'default' :
-                              movement.movement_type === 'out' ? 'secondary' : 'outline'
-                            }>
-                              {movement.movement_type.toUpperCase()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className={
-                            movement.movement_type === 'in' ? 'text-green-600' : 'text-red-600'
-                          }>
-                            {movement.movement_type === 'in' ? '+' : '-'}{movement.quantity}
-                          </TableCell>
-                          <TableCell>{movement.reason}</TableCell>
-                          <TableCell>{movement.staff_name}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                          </td>
+                          <td>
+                            <span className="donezo-dentist-badge inactive">{item.category}</span>
+                          </td>
+                          <td>
+                            {item.current_stock} {item.unit_type}
+                          </td>
+                          <td>
+                            {item.minimum_stock} {item.unit_type}
+                          </td>
+                          <td>₱{item.cost_per_unit.toFixed(2)}</td>
+                          <td className="font-medium">
+                            ₱{(item.current_stock * item.cost_per_unit).toFixed(2)}
+                          </td>
+                          <td>
+                            <span className={`donezo-dentist-badge ${status.className}`}>{status.label}</span>
+                          </td>
+                          {canManageInventory && (
+                            <td>
+                              <div className="flex gap-2">
+                                <button
+                                  className="donezo-icon-button"
+                                  onClick={() => {
+                                    setSelectedItem(item);
+                                    setIsStockMovementDialogOpen(true);
+                                  }}
+                                >
+                                  Stock
+                                </button>
+                                <button
+                                  className="donezo-icon-button"
+                                  onClick={() => {
+                                    setEditingItem(item);
+                                    setNewItem({
+                                      item_code: item.item_code,
+                                      name: item.name,
+                                      category: item.category,
+                                      unit_type: item.unit_type,
+                                      current_stock: item.current_stock.toString(),
+                                      minimum_stock: item.minimum_stock.toString(),
+                                      maximum_stock: item.maximum_stock?.toString() || '',
+                                      cost_per_unit: item.cost_per_unit.toString(),
+                                      supplier: item.supplier || '',
+                                      location: item.location || '',
+                                      description: item.description || ''
+                                    });
+                                    setIsAddItemDialogOpen(true);
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  className="donezo-icon-button"
+                                  onClick={() => handleDeleteItem(item.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
 
-      {/* Stock Movement Dialog */}
-      {canManageInventory && (
-        <Dialog open={isStockMovementDialogOpen} onOpenChange={setIsStockMovementDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Record Stock Movement</DialogTitle>
+        <div className={`donezo-tabs-content ${activeTab === 'movements' ? 'active' : ''}`}>
+          <div className="donezo-section">
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Recent Stock Movements</h3>
+            </div>
+            {stockMovements.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No stock movements recorded
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="donezo-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Item</th>
+                      <th>Type</th>
+                      <th>Quantity</th>
+                      <th>Reason</th>
+                      <th>Performed By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stockMovements.map((movement) => (
+                      <tr key={movement.id}>
+                        <td>
+                          {new Date(movement.movement_date).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <div>
+                            <div className="font-medium">{movement.item_name}</div>
+                            <div className="text-sm text-muted-foreground">{movement.item_code}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`donezo-dentist-badge ${movement.movement_type === 'in' ? 'active' : 'inactive'}`}>
+                            {movement.movement_type.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className={
+                          movement.movement_type === 'in' ? 'text-green-600' : 'text-red-600'
+                        }>
+                          {movement.movement_type === 'in' ? '+' : '-'}{movement.quantity}
+                        </td>
+                        <td>{movement.reason}</td>
+                        <td>{movement.staff_name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {isAddItemDialogOpen && (
+        <div className="donezo-dialog-overlay" onClick={() => setIsAddItemDialogOpen(false)}>
+          <div className="donezo-dialog-content" style={{ maxWidth: '700px' }} onClick={e => e.stopPropagation()}>
+            <div className="donezo-dialog-header">
+              <h3 className="donezo-dialog-title">{editingItem ? 'Edit' : 'Add'} Inventory Item</h3>
+            </div>
+            <form onSubmit={handleAddItem} className="space-y-4">
+              <div className="donezo-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <div className="donezo-form-field">
+                  <label htmlFor="item_code">Item Code *</label>
+                  <input
+                    value={newItem.item_code}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, item_code: e.target.value }))}
+                    placeholder="e.g. SUP-001"
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="name">Name *</label>
+                  <input
+                    value={newItem.name}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. Dental Gloves"
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <div className="donezo-form-field">
+                  <label>Category *</label>
+                  <select
+                    value={newItem.category}
+                    onChange={(e: any) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
+                    className="donezo-select"
+                  >
+                    <option value="supplies">Supplies</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="ppe">PPE</option>
+                    <option value="consumables">Consumables</option>
+                  </select>
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="unit_type">Unit Type *</label>
+                  <input
+                    value={newItem.unit_type}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, unit_type: e.target.value }))}
+                    placeholder="e.g. box, pieces, units"
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                <div className="donezo-form-field">
+                  <label htmlFor="current_stock">Current Stock *</label>
+                  <input
+                    type="number"
+                    value={newItem.current_stock}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, current_stock: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="minimum_stock">Minimum Stock *</label>
+                  <input
+                    type="number"
+                    value={newItem.minimum_stock}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, minimum_stock: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="maximum_stock">Maximum Stock</label>
+                  <input
+                    type="number"
+                    value={newItem.maximum_stock}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, maximum_stock: e.target.value }))}
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                <div className="donezo-form-field">
+                  <label htmlFor="cost_per_unit">Cost per Unit *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newItem.cost_per_unit}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, cost_per_unit: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="supplier">Supplier</label>
+                  <input
+                    value={newItem.supplier}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, supplier: e.target.value }))}
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="location">Location</label>
+                  <input
+                    value={newItem.location}
+                    onChange={(e) => setNewItem(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="e.g. Storage Room A"
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-field">
+                <label htmlFor="description">Description</label>
+                <textarea
+                  value={newItem.description}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Additional details about the item..."
+                  className="donezo-textarea"
+                />
+              </div>
+
+              <div className="donezo-dialog-footer">
+                <button type="button" className="donezo-header-button secondary" onClick={() => {
+                  setIsAddItemDialogOpen(false);
+                  setEditingItem(null);
+                  resetItemForm();
+                }}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading} className="donezo-header-button">
+                  {loading ? 'Saving...' : editingItem ? 'Update' : 'Add'} Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isStockMovementDialogOpen && (
+        <div className="donezo-dialog-overlay" onClick={() => setIsStockMovementDialogOpen(false)}>
+          <div className="donezo-dialog-content" onClick={e => e.stopPropagation()}>
+            <div className="donezo-dialog-header">
+              <h3 className="donezo-dialog-title">Record Stock Movement</h3>
               {selectedItem && (
                 <p className="text-sm text-muted-foreground">
                   {selectedItem.name} ({selectedItem.item_code})
@@ -875,80 +837,80 @@ export function ProductionInventoryPage({ currentUser }: ProductionInventoryPage
                   Current Stock: {selectedItem.current_stock} {selectedItem.unit_type}
                 </p>
               )}
-            </DialogHeader>
+            </div>
             <form onSubmit={handleAddStockMovement} className="space-y-4">
-              <div>
-                <Label>Movement Type *</Label>
-                <Select
+              <div className="donezo-form-field">
+                <label>Movement Type *</label>
+                <select
                   value={newMovement.movement_type}
-                  onValueChange={(value: any) => setNewMovement(prev => ({ ...prev, movement_type: value }))}
+                  onChange={(e: any) => setNewMovement(prev => ({ ...prev, movement_type: e.target.value }))}
+                  className="donezo-select"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in">Stock In (Add)</SelectItem>
-                    <SelectItem value="out">Stock Out (Remove)</SelectItem>
-                    <SelectItem value="adjustment">Adjustment</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="in">Stock In (Add)</option>
+                  <option value="out">Stock Out (Remove)</option>
+                  <option value="adjustment">Adjustment</option>
+                </select>
               </div>
 
-              <div>
-                <Label htmlFor="quantity">Quantity *</Label>
-                <Input
+              <div className="donezo-form-field">
+                <label htmlFor="quantity">Quantity *</label>
+                <input
                   type="number"
                   value={newMovement.quantity}
                   onChange={(e) => setNewMovement(prev => ({ ...prev, quantity: e.target.value }))}
                   required
+                  className="donezo-input"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="reason">Reason *</Label>
-                <Textarea
+              <div className="donezo-form-field">
+                <label htmlFor="reason">Reason *</label>
+                <textarea
                   value={newMovement.reason}
                   onChange={(e) => setNewMovement(prev => ({ ...prev, reason: e.target.value }))}
                   placeholder="e.g. New stock delivery, Used in treatment, Damaged items"
                   required
+                  className="donezo-textarea"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="reference_number">Reference Number</Label>
-                <Input
+              <div className="donezo-form-field">
+                <label htmlFor="reference_number">Reference Number</label>
+                <input
                   value={newMovement.reference_number}
                   onChange={(e) => setNewMovement(prev => ({ ...prev, reference_number: e.target.value }))}
                   placeholder="e.g. Invoice number, Purchase order"
+                  className="donezo-input"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="movement_date">Movement Date *</Label>
-                <Input
+              <div className="donezo-form-field">
+                <label htmlFor="movement_date">Movement Date *</label>
+                <input
                   type="date"
                   value={newMovement.movement_date}
                   onChange={(e) => setNewMovement(prev => ({ ...prev, movement_date: e.target.value }))}
                   required
+                  className="donezo-input"
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => {
+              <div className="donezo-dialog-footer">
+                <button type="button" className="donezo-header-button secondary" onClick={() => {
                   setIsStockMovementDialogOpen(false);
                   setSelectedItem(null);
                   resetMovementForm();
                 }}>
                   Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
+                </button>
+                <button type="submit" disabled={loading} className="donezo-header-button">
                   {loading ? 'Recording...' : 'Record Movement'}
-                </Button>
+                </button>
               </div>
             </form>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

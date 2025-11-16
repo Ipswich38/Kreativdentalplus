@@ -1,14 +1,4 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Textarea } from "./ui/textarea";
 import {
   DollarSign,
   TrendingUp,
@@ -27,6 +17,9 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
+import { PageWrapper } from "./PageWrapper";
+
+// ... (interfaces remain the same)
 
 interface PaymentTransaction {
   id: string;
@@ -71,6 +64,7 @@ interface FinancialSummary {
     value: number;
   }>;
 }
+
 
 interface ProductionFinancialPageProps {
   currentUser: User;
@@ -451,532 +445,495 @@ export function ProductionFinancialPage({ currentUser }: ProductionFinancialPage
     Miscellaneous: "#10b981"
   };
 
+  const pageActions = (
+    <div style={{ display: 'flex', gap: '8px' }}>
+      <select value={selectedPeriod} onChange={e => setSelectedPeriod(e.target.value)} className="donezo-select">
+        <option value="last_7_days">Last 7 Days</option>
+        <option value="last_30_days">Last 30 Days</option>
+        <option value="last_3_months">Last 3 Months</option>
+        <option value="last_6_months">Last 6 Months</option>
+        <option value="this_year">This Year</option>
+      </select>
+
+      <button className="donezo-header-button secondary" onClick={exportFinancialData}>
+        <Download className="w-4 h-4" />
+        Export
+      </button>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">Financial Management</h2>
-          <p className="text-muted-foreground">
-            Track income, expenses, and financial performance
+    <PageWrapper
+      title="Financial Management"
+      subtitle="Track income, expenses, and financial performance"
+      actions={pageActions}
+    >
+      {/* Summary Cards */}
+      <div className="dentists-stats-grid" style={{ marginBottom: '32px' }}>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Total Income</span>
+            <DollarSign className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value" style={{ color: 'var(--primary-green)' }}>
+            ₱{financialSummary.totalIncome.toLocaleString()}
+          </div>
+          <p className="donezo-stat-meta">
+            From {transactions.filter(t => t.status === 'completed').length} transactions
           </p>
         </div>
 
-        <div className="flex gap-2">
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="last_7_days">Last 7 Days</SelectItem>
-              <SelectItem value="last_30_days">Last 30 Days</SelectItem>
-              <SelectItem value="last_3_months">Last 3 Months</SelectItem>
-              <SelectItem value="last_6_months">Last 6 Months</SelectItem>
-              <SelectItem value="this_year">This Year</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button variant="outline" onClick={exportFinancialData}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Total Expenses</span>
+            <Receipt className="donezo-stat-icon" />
+          </div>
+          <div className="donezo-stat-value" style={{ color: 'var(--accent-orange)' }}>
+            ₱{financialSummary.totalExpenses.toLocaleString()}
+          </div>
+          <p className="donezo-stat-meta">
+            From {expenses.length} expense records
+          </p>
         </div>
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">
-              ₱{financialSummary.totalIncome.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              From {transactions.filter(t => t.status === 'completed').length} transactions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              ₱{financialSummary.totalExpenses.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              From {expenses.length} expense records
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Income</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${financialSummary.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              ₱{financialSummary.netIncome.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {financialSummary.netIncome >= 0 ? 'Profit' : 'Loss'} for selected period
-            </p>
-          </CardContent>
-        </Card>
+        <div className="donezo-stat-card">
+          <div className="donezo-stat-header">
+            <span className="donezo-stat-label">Net Income</span>
+            <Wallet className="donezo-stat-icon" />
+          </div>
+          <div className={`donezo-stat-value ${financialSummary.netIncome >= 0 ? '' : 'text-red-600'}`}
+            style={{ color: financialSummary.netIncome >= 0 ? 'var(--primary-green)' : 'var(--accent-orange)' }}
+          >
+            ₱{financialSummary.netIncome.toLocaleString()}
+          </div>
+          <p className="donezo-stat-meta">
+            {financialSummary.netIncome >= 0 ? 'Profit' : 'Loss'} for selected period
+          </p>
+        </div>
       </div>
 
       {/* Charts Section */}
       {financialSummary.monthlyData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Income vs Expenses Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Income vs Expenses</CardTitle>
-              <p className="text-sm text-muted-foreground">Monthly comparison</p>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={financialSummary.monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`₱${Number(value).toLocaleString()}`, '']} />
-                  <Legend />
-                  <Bar dataKey="income" fill="#10b981" name="Income" />
-                  <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <div className="dentists-stats-grid" style={{ gridTemplateColumns: '1fr 1fr', marginBottom: '32px' }}>
+          <div className="donezo-section">
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Income vs Expenses</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={financialSummary.monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, '']} />
+                <Legend />
+                <Bar dataKey="income" fill="var(--primary-green)" name="Income" />
+                <Bar dataKey="expenses" fill="var(--accent-orange)" name="Expenses" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-          {/* Expenses by Category */}
           {financialSummary.expensesByCategory.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Expenses by Category</CardTitle>
-                <p className="text-sm text-muted-foreground">Breakdown by type</p>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={financialSummary.expensesByCategory}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {financialSummary.expensesByCategory.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#94a3b8'} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`₱${Number(value).toLocaleString()}`, '']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <div className="donezo-section">
+              <div className="donezo-section-header">
+                <h3 className="donezo-section-title">Expenses by Category</h3>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={financialSummary.expensesByCategory}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {financialSummary.expensesByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#94a3b8'} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, '']} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
       )}
 
       {/* Tabs for Transactions and Expenses */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-4">
+      <div className="donezo-tabs">
         <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          </TabsList>
+          <div className="donezo-tabs-list">
+            <button className={`donezo-tabs-trigger ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
+            <button className={`donezo-tabs-trigger ${activeTab === 'transactions' ? 'active' : ''}`} onClick={() => setActiveTab('transactions')}>Transactions</button>
+            <button className={`donezo-tabs-trigger ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>Expenses</button>
+          </div>
 
           {canManageFinances && (
             <div className="flex gap-2">
               {activeTab === 'transactions' && (
-                <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-emerald-600 hover:bg-emerald-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Transaction
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add Payment Transaction</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleAddTransaction} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="amount">Amount *</Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={newTransaction.amount}
-                            onChange={(e) => setNewTransaction(prev => ({ ...prev, amount: e.target.value }))}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label>Payment Method *</Label>
-                          <Select
-                            value={newTransaction.payment_method}
-                            onValueChange={(value: any) => setNewTransaction(prev => ({ ...prev, payment_method: value }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="cash">Cash</SelectItem>
-                              <SelectItem value="credit_card">Credit Card</SelectItem>
-                              <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                              <SelectItem value="installment">Installment</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="transaction_date">Transaction Date *</Label>
-                        <Input
-                          type="date"
-                          value={newTransaction.transaction_date}
-                          onChange={(e) => setNewTransaction(prev => ({ ...prev, transaction_date: e.target.value }))}
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea
-                          value={newTransaction.notes}
-                          onChange={(e) => setNewTransaction(prev => ({ ...prev, notes: e.target.value }))}
-                          placeholder="Additional notes..."
-                        />
-                      </div>
-
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => setIsTransactionDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                          {loading ? 'Adding...' : 'Add Transaction'}
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                <button className="donezo-header-button" onClick={() => setIsTransactionDialogOpen(true)}>
+                  <Plus className="w-4 h-4" />
+                  Add Transaction
+                </button>
               )}
 
               {activeTab === 'expenses' && (
-                <Dialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-red-600 hover:bg-red-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Expense
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{editingExpense ? 'Edit' : 'Add'} Expense</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleSaveExpense} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Category *</Label>
-                          <Select
-                            value={newExpense.category}
-                            onValueChange={(value: any) => setNewExpense(prev => ({ ...prev, category: value }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="supplies">Supplies</SelectItem>
-                              <SelectItem value="equipment">Equipment</SelectItem>
-                              <SelectItem value="utilities">Utilities</SelectItem>
-                              <SelectItem value="rent">Rent</SelectItem>
-                              <SelectItem value="miscellaneous">Miscellaneous</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="amount">Amount *</Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={newExpense.amount}
-                            onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="description">Description *</Label>
-                        <Input
-                          value={newExpense.description}
-                          onChange={(e) => setNewExpense(prev => ({ ...prev, description: e.target.value }))}
-                          required
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="vendor">Vendor</Label>
-                          <Input
-                            value={newExpense.vendor}
-                            onChange={(e) => setNewExpense(prev => ({ ...prev, vendor: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="receipt_number">Receipt Number</Label>
-                          <Input
-                            value={newExpense.receipt_number}
-                            onChange={(e) => setNewExpense(prev => ({ ...prev, receipt_number: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="expense_date">Expense Date *</Label>
-                        <Input
-                          type="date"
-                          value={newExpense.expense_date}
-                          onChange={(e) => setNewExpense(prev => ({ ...prev, expense_date: e.target.value }))}
-                          required
-                        />
-                      </div>
-
-                      <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => {
-                          setIsExpenseDialogOpen(false);
-                          setEditingExpense(null);
-                          setNewExpense({
-                            category: 'supplies',
-                            description: '',
-                            amount: '',
-                            vendor: '',
-                            expense_date: new Date().toISOString().split('T')[0],
-                            receipt_number: ''
-                          });
-                        }}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                          {loading ? 'Saving...' : editingExpense ? 'Update' : 'Add'} Expense
-                        </Button>
-                      </div>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                <button className="donezo-header-button" onClick={() => setIsExpenseDialogOpen(true)}>
+                  <Plus className="w-4 h-4" />
+                  Add Expense
+                </button>
               )}
             </div>
           )}
         </div>
 
-        <TabsContent value="overview">
-          <Card>
-            <CardHeader>
-              <CardTitle>Financial Overview</CardTitle>
-              <p className="text-sm text-muted-foreground">Summary for selected period</p>
-            </CardHeader>
-            <CardContent>
-              {financialSummary.monthlyData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={financialSummary.monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`₱${Number(value).toLocaleString()}`, '']} />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="netIncome"
-                      stroke="#8b5cf6"
-                      strokeWidth={3}
-                      name="Net Income"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="income"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      name="Income"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="expenses"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      name="Expenses"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  No financial data available for the selected period
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <div className={`donezo-tabs-content ${activeTab === 'overview' ? 'active' : ''}`}>
+          <div className="donezo-section">
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Financial Overview</h3>
+            </div>
+            {financialSummary.monthlyData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={financialSummary.monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, '']} />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="netIncome"
+                    stroke="var(--accent-purple)"
+                    strokeWidth={3}
+                    name="Net Income"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    stroke="var(--primary-green)"
+                    strokeWidth={2}
+                    name="Income"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="expenses"
+                    stroke="var(--accent-orange)"
+                    strokeWidth={2}
+                    name="Expenses"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No financial data available for the selected period
+              </div>
+            )}
+          </div>
+        </div >
 
-        <TabsContent value="transactions">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Transactions</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Income from patient payments and services
-              </p>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8">Loading transactions...</div>
-              ) : transactions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No payment transactions found for the selected period
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Patient</TableHead>
-                        <TableHead>Service</TableHead>
-                        <TableHead>Payment Method</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell>
-                            {new Date(transaction.transaction_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {transaction.patient_name}
-                          </TableCell>
-                          <TableCell>{transaction.service_name}</TableCell>
-                          <TableCell className="capitalize">
-                            {transaction.payment_method.replace('_', ' ')}
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            ₱{transaction.amount.toLocaleString()}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                transaction.status === 'completed' ? 'default' :
-                                transaction.status === 'pending' ? 'secondary' : 'destructive'
-                              }
-                            >
-                              {transaction.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <div className={`donezo-tabs-content ${activeTab === 'transactions' ? 'active' : ''}`}>
+          <div className="donezo-section">
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Payment Transactions</h3>
+            </div>
+            {loading ? (
+              <div className="text-center py-8">Loading transactions...</div>
+            ) : transactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No payment transactions found for the selected period
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="donezo-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Patient</th>
+                      <th>Service</th>
+                      <th>Payment Method</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td>
+                          {new Date(transaction.transaction_date).toLocaleDateString()}
+                        </td>
+                        <td className="font-medium">
+                          {transaction.patient_name}
+                        </td>
+                        <td>{transaction.service_name}</td>
+                        <td className="capitalize">
+                          {transaction.payment_method.replace('_', ' ')}
+                        </td>
+                        <td className="font-medium">
+                          ₱{transaction.amount.toLocaleString()}
+                        </td>
+                        <td>
+                          <span
+                            className={`donezo-dentist-badge ${transaction.status === 'completed' ? 'active' : transaction.status === 'pending' ? 'on-leave' : 'inactive'}`}
+                          >
+                            {transaction.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
 
-        <TabsContent value="expenses">
-          <Card>
-            <CardHeader>
-              <CardTitle>Expenses</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Practice expenses and operational costs
-              </p>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8">Loading expenses...</div>
-              ) : expenses.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No expenses found for the selected period
+        <div className={`donezo-tabs-content ${activeTab === 'expenses' ? 'active' : ''}`}>
+          <div className="donezo-section">
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Expenses</h3>
+            </div>
+            {loading ? (
+              <div className="text-center py-8">Loading expenses...</div>
+            ) : expenses.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No expenses found for the selected period
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="donezo-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Vendor</th>
+                      <th>Amount</th>
+                      {canManageFinances && <th>Actions</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {expenses.map((expense) => (
+                      <tr key={expense.id}>
+                        <td>
+                          {new Date(expense.expense_date).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <span className="donezo-dentist-badge inactive">
+                            {expense.category}
+                          </span>
+                        </td>
+                        <td className="font-medium">{expense.description}</td>
+                        <td>{expense.vendor || '—'}</td>
+                        <td className="font-medium" style={{ color: 'var(--accent-orange)' }}>
+                          ₱{expense.amount.toLocaleString()}
+                        </td>
+                        {canManageFinances && (
+                          <td>
+                            <div className="flex gap-2">
+                              <button
+                                className="donezo-icon-button"
+                                onClick={() => {
+                                  setEditingExpense(expense);
+                                  setNewExpense({
+                                    category: expense.category,
+                                    description: expense.description,
+                                    amount: expense.amount.toString(),
+                                    vendor: expense.vendor || '',
+                                    expense_date: expense.expense_date,
+                                    receipt_number: expense.receipt_number || ''
+                                  });
+                                  setIsExpenseDialogOpen(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                className="donezo-icon-button"
+                                onClick={() => handleDeleteExpense(expense.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {isTransactionDialogOpen && (
+        <div className="donezo-dialog-overlay" onClick={() => setIsTransactionDialogOpen(false)}>
+          <div className="donezo-dialog-content" onClick={e => e.stopPropagation()}>
+            <div className="donezo-dialog-header">
+              <h3 className="donezo-dialog-title">Add Payment Transaction</h3>
+            </div>
+            <form onSubmit={handleAddTransaction} className="space-y-4">
+              <div className="donezo-form-grid">
+                <div className="donezo-form-field">
+                  <label htmlFor="amount">Amount *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newTransaction.amount}
+                    onChange={(e) => setNewTransaction(prev => ({ ...prev, amount: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
                 </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Vendor</TableHead>
-                        <TableHead>Amount</TableHead>
-                        {canManageFinances && <TableHead>Actions</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {expenses.map((expense) => (
-                        <TableRow key={expense.id}>
-                          <TableCell>
-                            {new Date(expense.expense_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="capitalize">
-                              {expense.category}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-medium">{expense.description}</TableCell>
-                          <TableCell>{expense.vendor || '—'}</TableCell>
-                          <TableCell className="font-medium text-red-600">
-                            ₱{expense.amount.toLocaleString()}
-                          </TableCell>
-                          {canManageFinances && (
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEditingExpense(expense);
-                                    setNewExpense({
-                                      category: expense.category,
-                                      description: expense.description,
-                                      amount: expense.amount.toString(),
-                                      vendor: expense.vendor || '',
-                                      expense_date: expense.expense_date,
-                                      receipt_number: expense.receipt_number || ''
-                                    });
-                                    setIsExpenseDialogOpen(true);
-                                  }}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDeleteExpense(expense.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="donezo-form-field">
+                  <label>Payment Method *</label>
+                  <select
+                    value={newTransaction.payment_method}
+                    onChange={(e: any) => setNewTransaction(prev => ({ ...prev, payment_method: e.target.value }))}
+                    className="donezo-select"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="installment">Installment</option>
+                  </select>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              </div>
+
+              <div className="donezo-form-field">
+                <label htmlFor="transaction_date">Transaction Date *</label>
+                <input
+                  type="date"
+                  value={newTransaction.transaction_date}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, transaction_date: e.target.value }))}
+                  required
+                  className="donezo-input"
+                />
+              </div>
+
+              <div className="donezo-form-field">
+                <label htmlFor="notes">Notes</label>
+                <textarea
+                  value={newTransaction.notes}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Additional notes..."
+                  className="donezo-textarea"
+                />
+              </div>
+
+              <div className="donezo-dialog-footer">
+                <button type="button" className="donezo-header-button secondary" onClick={() => setIsTransactionDialogOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading} className="donezo-header-button">
+                  {loading ? 'Adding...' : 'Add Transaction'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isExpenseDialogOpen && (
+        <div className="donezo-dialog-overlay" onClick={() => setIsExpenseDialogOpen(false)}>
+          <div className="donezo-dialog-content" onClick={e => e.stopPropagation()}>
+            <div className="donezo-dialog-header">
+              <h3 className="donezo-dialog-title">{editingExpense ? 'Edit' : 'Add'} Expense</h3>
+            </div>
+            <form onSubmit={handleSaveExpense} className="space-y-4">
+              <div className="donezo-form-grid">
+                <div className="donezo-form-field">
+                  <label>Category *</label>
+                  <select
+                    value={newExpense.category}
+                    onChange={(e: any) => setNewExpense(prev => ({ ...prev, category: e.target.value }))}
+                    className="donezo-select"
+                  >
+                    <option value="supplies">Supplies</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="rent">Rent</option>
+                    <option value="miscellaneous">Miscellaneous</option>
+                  </select>
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="amount">Amount *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newExpense.amount}
+                    onChange={(e) => setNewExpense(prev => ({ ...prev, amount: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-field">
+                <label htmlFor="description">Description *</label>
+                <input
+                  value={newExpense.description}
+                  onChange={(e) => setNewExpense(prev => ({ ...prev, description: e.target.value }))}
+                  required
+                  className="donezo-input"
+                />
+              </div>
+
+              <div className="donezo-form-grid">
+                <div className="donezo-form-field">
+                  <label htmlFor="vendor">Vendor</label>
+                  <input
+                    value={newExpense.vendor}
+                    onChange={(e) => setNewExpense(prev => ({ ...prev, vendor: e.target.value }))}
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="receipt_number">Receipt Number</label>
+                  <input
+                    value={newExpense.receipt_number}
+                    onChange={(e) => setNewExpense(prev => ({ ...prev, receipt_number: e.target.value }))}
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              <div className="donezo-form-field">
+                <label htmlFor="expense_date">Expense Date *</label>
+                <input
+                  type="date"
+                  value={newExpense.expense_date}
+                  onChange={(e) => setNewExpense(prev => ({ ...prev, expense_date: e.target.value }))}
+                  required
+                  className="donezo-input"
+                />
+              </div>
+
+              <div className="donezo-dialog-footer">
+                <button type="button" className="donezo-header-button secondary" onClick={() => {
+                  setIsExpenseDialogOpen(false);
+                  setEditingExpense(null);
+                  setNewExpense({
+                    category: 'supplies',
+                    description: '',
+                    amount: '',
+                    vendor: '',
+                    expense_date: new Date().toISOString().split('T')[0],
+                    receipt_number: ''
+                  });
+                }}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading} className="donezo-header-button">
+                  {loading ? 'Saving...' : editingExpense ? 'Update' : 'Add'} Expense
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </PageWrapper>
   );
 }

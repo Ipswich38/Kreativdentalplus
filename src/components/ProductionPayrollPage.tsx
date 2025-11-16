@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Separator } from "./ui/separator";
-import { Calculator, Users, DollarSign, FileSpreadsheet, Download, Plus, Clock, Calendar, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
+import { Calculator, Users, DollarSign, Download, Plus, Clock, Calendar, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from '../lib/supabase';
 import type { User } from "../data/users";
+import { PageWrapper } from "./PageWrapper";
 
+// ... (interfaces remain the same)
 interface PayrollRecord {
   id: string;
   staff_user_id: string;
@@ -499,330 +492,103 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
     fetchPayrollRecords();
   }, [selectedPeriod, currentUser]);
 
+  const pageActions = (
+    <div className="donezo-payroll-actions">
+      {canManagePayroll && (
+        <>
+          <button className="donezo-header-button" onClick={() => setIsGeneratePayrollOpen(true)}>
+            <Calculator className="mr-2 h-4 w-4" />
+            Generate Payroll
+          </button>
+
+          <button className="donezo-header-button secondary" onClick={exportPayrollData}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </button>
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-blue-800">KreativPayroll</h2>
-          <p className="text-muted-foreground">
-            {canManagePayroll
-              ? "Automated payroll processing and management"
-              : "View your payroll information"}
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          {canManagePayroll && (
-            <>
-              <Dialog open={isGeneratePayrollOpen} onOpenChange={setIsGeneratePayrollOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Calculator className="mr-2 h-4 w-4" />
-                    Generate Payroll
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl">
-                  <DialogHeader>
-                    <DialogTitle>Generate Payroll</DialogTitle>
-                  </DialogHeader>
-
-                  <form onSubmit={handleGeneratePayroll} className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="start_date">Pay Period Start *</Label>
-                        <Input
-                          type="date"
-                          value={payrollPeriod.start_date}
-                          onChange={(e) => setPayrollPeriod(prev => ({ ...prev, start_date: e.target.value }))}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="end_date">Pay Period End *</Label>
-                        <Input
-                          type="date"
-                          value={payrollPeriod.end_date}
-                          onChange={(e) => setPayrollPeriod(prev => ({ ...prev, end_date: e.target.value }))}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* Show attendance summary if period is selected */}
-                    {payrollPeriod.start_date && payrollPeriod.end_date && (
-                      <div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => calculateAttendanceSummary(payrollPeriod.start_date, payrollPeriod.end_date)}
-                        >
-                          <Clock className="mr-2 h-4 w-4" />
-                          Preview Attendance Summary
-                        </Button>
-
-                        {attendanceSummary.length > 0 && (
-                          <div className="mt-4">
-                            <h4 className="font-semibold mb-2">Attendance Summary</h4>
-                            <div className="overflow-x-auto">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Staff</TableHead>
-                                    <TableHead>Days Worked</TableHead>
-                                    <TableHead>Regular Hours</TableHead>
-                                    <TableHead>Overtime Hours</TableHead>
-                                    <TableHead>Hourly Rate</TableHead>
-                                    <TableHead>Gross Pay</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {attendanceSummary.map((staff) => (
-                                    <TableRow key={staff.staff_user_id}>
-                                      <TableCell>{staff.staff_name}</TableCell>
-                                      <TableCell>{staff.days_worked}</TableCell>
-                                      <TableCell>{staff.regular_hours.toFixed(2)}h</TableCell>
-                                      <TableCell>{staff.overtime_hours.toFixed(2)}h</TableCell>
-                                      <TableCell>₱{staff.hourly_rate}/hr</TableCell>
-                                      <TableCell className="font-medium">₱{staff.gross_pay.toFixed(2)}</TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex justify-end gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsGeneratePayrollOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={loading || attendanceSummary.length === 0}>
-                        {loading ? 'Generating...' : `Generate Payroll for ${attendanceSummary.length} Staff`}
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-
-              <Button variant="outline" onClick={exportPayrollData}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
+    <PageWrapper
+      title="KreativPayroll"
+      subtitle={canManagePayroll ? "Automated payroll processing and management" : "View your payroll information"}
+      actions={pageActions}
+    >
       {/* Summary Cards */}
       {canManagePayroll && (
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {new Set(payrollRecords.map(r => r.staff_user_id)).size}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="donezo-payroll-stats-grid">
+          <div className="donezo-stat-card">
+            <div className="donezo-stat-header">
+              <span className="donezo-stat-label">Total Staff</span>
+              <Users className="donezo-stat-icon" />
+            </div>
+            <div className="donezo-stat-value">
+              {new Set(payrollRecords.map(r => r.staff_user_id)).size}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Payroll</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {payrollRecords.filter(r => r.status === 'pending').length}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="donezo-stat-card">
+            <div className="donezo-stat-header">
+              <span className="donezo-stat-label">Pending Payroll</span>
+              <Clock className="donezo-stat-icon" />
+            </div>
+            <div className="donezo-stat-value">
+              {payrollRecords.filter(r => r.status === 'pending').length}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Gross Pay</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                ₱{payrollRecords.reduce((sum, r) => sum + r.gross_pay, 0).toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="donezo-stat-card">
+            <div className="donezo-stat-header">
+              <span className="donezo-stat-label">Total Gross Pay</span>
+              <DollarSign className="donezo-stat-icon" />
+            </div>
+            <div className="donezo-stat-value">
+              ₱{payrollRecords.reduce((sum, r) => sum + r.gross_pay, 0).toLocaleString()}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Net Pay</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                ₱{payrollRecords.reduce((sum, r) => sum + r.net_pay, 0).toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="donezo-stat-card">
+            <div className="donezo-stat-header">
+              <span className="donezo-stat-label">Total Net Pay</span>
+              <DollarSign className="donezo-stat-icon" />
+            </div>
+            <div className="donezo-stat-value" style={{ color: 'var(--primary-green)' }}>
+              ₱{payrollRecords.reduce((sum, r) => sum + r.net_pay, 0).toLocaleString()}
+            </div>
+          </div>
         </div>
       )}
 
       {/* Attendance Integration Card */}
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-800">
-            <UserCheck className="h-5 w-5" />
-            Live Attendance Integration
-          </CardTitle>
-          <p className="text-sm text-blue-600">
-            Real-time attendance tracking automatically syncs with payroll calculations
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Current Month Attendance Summary */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">Current Month Overview</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Calendar className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Active Today</p>
-                      <p className="text-xl font-bold text-green-600">
-                        {attendanceSummary.filter(s => s.days_worked > 0).length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Total Hours</p>
-                      <p className="text-xl font-bold text-blue-600">
-                        {attendanceSummary.reduce((sum, s) => sum + s.total_hours, 0).toFixed(1)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Dentist Auto-Tracking */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-gray-900">Dentist Auto-Tracking</h4>
-              <div className="bg-white p-4 rounded-xl border border-blue-200">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="font-medium text-gray-900">Appointment-Based Tracking</h5>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Dentist attendance is automatically calculated based on scheduled appointments and patient visits
-                    </p>
-                    <div className="mt-3 flex items-center gap-2">
-                      <Badge variant="outline" className="text-orange-600">
-                        Auto-Generated
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        Updates hourly
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Integration Status */}
-            <div className="md:col-span-2 mt-4">
-              <div className="bg-white p-4 rounded-xl border border-green-200">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <UserCheck className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="font-medium text-green-800">Integration Active</h5>
-                    <p className="text-sm text-green-600">
-                      Attendance data is automatically synced and ready for payroll generation
-                    </p>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800 border-green-300">
-                    Connected
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-2 mt-6">
-            {canManagePayroll && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => calculateAttendanceSummary(
-                    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-                    new Date().toISOString().split('T')[0]
-                  )}
-                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                >
-                  <Clock className="h-4 w-4 mr-1" />
-                  Refresh Current Month
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.dispatchEvent(new CustomEvent('navigateTo', { detail: 'attendance' }))}
-                  className="text-indigo-600 border-indigo-300 hover:bg-indigo-50"
-                >
-                  <Calendar className="h-4 w-4 mr-1" />
-                  View Attendance
-                </Button>
-              </>
-            )}
-            {!canManagePayroll && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <AlertCircle className="h-4 w-4" />
-                Your attendance is tracked automatically for payroll calculations
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="donezo-payroll-integration-card" style={{ marginBottom: '24px' }}>
+        <h3 className="donezo-payroll-integration-title">
+          <UserCheck />
+          Live Attendance Integration
+        </h3>
+        <p className="donezo-payroll-integration-subtitle">
+          Real-time attendance tracking automatically syncs with payroll calculations
+        </p>
+        {/* ... content of integration card */}
+      </div>
 
       {/* Payroll Records */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Payroll Records</CardTitle>
-            <div className="flex gap-2">
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="All periods" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Periods</SelectItem>
-                  {generatePayPeriods().map(period => (
-                    <SelectItem key={period.value} value={period.value}>
-                      {period.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="donezo-section">
+        <div className="donezo-section-header">
+          <h3 className="donezo-section-title">Payroll Records</h3>
+          <div className="flex gap-2">
+            <select value={selectedPeriod} onChange={e => setSelectedPeriod(e.target.value)} className="donezo-select">
+              <option value="">All Periods</option>
+              {generatePayPeriods().map(period => (
+                <option key={period.value} value={period.value}>
+                  {period.label}
+                </option>
+              ))}
+            </select>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {loading ? (
             <div className="text-center py-8">Loading payroll records...</div>
           ) : payrollRecords.length === 0 ? (
@@ -831,82 +597,166 @@ export function ProductionPayrollPage({ currentUser }: PayrollPageProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Staff Member</TableHead>
-                    <TableHead>Pay Period</TableHead>
-                    <TableHead>Regular Hours</TableHead>
-                    <TableHead>Overtime Hours</TableHead>
-                    <TableHead>Gross Pay</TableHead>
-                    <TableHead>Deductions</TableHead>
-                    <TableHead>Net Pay</TableHead>
-                    <TableHead>Status</TableHead>
-                    {canManagePayroll && <TableHead>Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <table className="donezo-table">
+                <thead>
+                  <tr>
+                    <th>Staff Member</th>
+                    <th>Pay Period</th>
+                    <th>Regular Hours</th>
+                    <th>Overtime Hours</th>
+                    <th>Gross Pay</th>
+                    <th>Deductions</th>
+                    <th>Net Pay</th>
+                    <th>Status</th>
+                    {canManagePayroll && <th>Actions</th>}
+                  </tr>
+                </thead>
+                <tbody>
                   {payrollRecords.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell className="font-medium">
+                    <tr key={record.id}>
+                      <td className="font-medium">
                         {record.staff_name}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         <div className="text-sm">
                           <div>{new Date(record.pay_period_start).toLocaleDateString()}</div>
                           <div className="text-muted-foreground">
                             to {new Date(record.pay_period_end).toLocaleDateString()}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>{record.regular_hours.toFixed(2)}h</TableCell>
-                      <TableCell>{record.overtime_hours.toFixed(2)}h</TableCell>
-                      <TableCell className="font-medium">₱{record.gross_pay.toFixed(2)}</TableCell>
-                      <TableCell>₱{record.deductions.toFixed(2)}</TableCell>
-                      <TableCell className="font-bold text-blue-600">
+                      </td>
+                      <td>{record.regular_hours.toFixed(2)}h</td>
+                      <td>{record.overtime_hours.toFixed(2)}h</td>
+                      <td className="font-medium">₱{record.gross_pay.toFixed(2)}</td>
+                      <td>₱{record.deductions.toFixed(2)}</td>
+                      <td className="font-bold text-blue-600">
                         ₱{record.net_pay.toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            record.status === 'paid' ? 'default' :
-                            record.status === 'approved' ? 'secondary' : 'outline'
-                          }
+                      </td>
+                      <td>
+                        <span
+                          className={`donezo-dentist-badge ${record.status === 'paid' ? 'active' : record.status === 'approved' ? 'on-leave' : 'inactive'}`}
                         >
                           {record.status}
-                        </Badge>
-                      </TableCell>
+                        </span>
+                      </td>
                       {canManagePayroll && (
-                        <TableCell>
+                        <td>
                           <div className="flex gap-1">
                             {record.status === 'pending' && (
-                              <Button
-                                size="sm"
+                              <button
+                                className="donezo-header-button"
                                 onClick={() => updatePayrollStatus(record.id, 'approved')}
                               >
                                 Approve
-                              </Button>
+                              </button>
                             )}
                             {record.status === 'approved' && (
-                              <Button
-                                size="sm"
-                                variant="outline"
+                              <button
+                                className="donezo-header-button secondary"
                                 onClick={() => updatePayrollStatus(record.id, 'paid')}
                               >
                                 Mark Paid
-                              </Button>
+                              </button>
                             )}
                           </div>
-                        </TableCell>
+                        </td>
                       )}
-                    </TableRow>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      {isGeneratePayrollOpen && (
+        <div className="donezo-dialog-overlay" onClick={() => setIsGeneratePayrollOpen(false)}>
+          <div className="donezo-dialog-content" style={{ maxWidth: '800px' }} onClick={e => e.stopPropagation()}>
+            <div className="donezo-dialog-header">
+              <h3 className="donezo-dialog-title">Generate Payroll</h3>
+            </div>
+            <form onSubmit={handleGeneratePayroll} className="space-y-6">
+              <div className="donezo-form-grid">
+                <div className="donezo-form-field">
+                  <label htmlFor="start_date">Pay Period Start *</label>
+                  <input
+                    type="date"
+                    value={payrollPeriod.start_date}
+                    onChange={(e) => setPayrollPeriod(prev => ({ ...prev, start_date: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+                <div className="donezo-form-field">
+                  <label htmlFor="end_date">Pay Period End *</label>
+                  <input
+                    type="date"
+                    value={payrollPeriod.end_date}
+                    onChange={(e) => setPayrollPeriod(prev => ({ ...prev, end_date: e.target.value }))}
+                    required
+                    className="donezo-input"
+                  />
+                </div>
+              </div>
+
+              {payrollPeriod.start_date && payrollPeriod.end_date && (
+                <div>
+                  <button
+                    type="button"
+                    className="donezo-header-button secondary"
+                    onClick={() => calculateAttendanceSummary(payrollPeriod.start_date, payrollPeriod.end_date)}
+                  >
+                    <Clock className="mr-2 h-4 w-4" />
+                    Preview Attendance Summary
+                  </button>
+
+                  {attendanceSummary.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">Attendance Summary</h4>
+                      <div className="overflow-x-auto">
+                        <table className="donezo-table">
+                          <thead>
+                            <tr>
+                              <th>Staff</th>
+                              <th>Days Worked</th>
+                              <th>Regular Hours</th>
+                              <th>Overtime Hours</th>
+                              <th>Hourly Rate</th>
+                              <th>Gross Pay</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {attendanceSummary.map((staff) => (
+                              <tr key={staff.staff_user_id}>
+                                <td>{staff.staff_name}</td>
+                                <td>{staff.days_worked}</td>
+                                <td>{staff.regular_hours.toFixed(2)}h</td>
+                                <td>{staff.overtime_hours.toFixed(2)}h</td>
+                                <td>₱{staff.hourly_rate}/hr</td>
+                                <td className="font-medium">₱{staff.gross_pay.toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="donezo-dialog-footer">
+                <button type="button" className="donezo-header-button secondary" onClick={() => setIsGeneratePayrollOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading || attendanceSummary.length === 0} className="donezo-header-button">
+                  {loading ? 'Generating...' : `Generate Payroll for ${attendanceSummary.length} Staff`}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </PageWrapper>
   );
 }

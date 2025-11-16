@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Calendar, Clock, User, Plus, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
 import type { User } from "../data/users";
+import { PageWrapper } from "./PageWrapper";
 
+// ... (interfaces remain the same)
 interface AttendanceRecord {
   id: string;
   staff_user_id: string;
@@ -293,128 +287,40 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
     }
   }, [selectedDate, selectedStaff, currentUser]);
 
+  const pageActions = (
+    <div className="donezo-attendance-actions">
+      {canManageAttendance && (
+        <button className="donezo-header-button" onClick={() => setIsNewAttendanceOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Record
+        </button>
+      )}
+    </div>
+  );
+
   try {
     console.log('=== ProductionAttendancePage RENDER START ===');
 
     return (
-      <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Attendance Tracking</h2>
-          <p className="text-muted-foreground">
-            {canManageAttendance
-              ? "Track staff attendance and work hours"
-              : "View your attendance records"}
-          </p>
-        </div>
-
+      <PageWrapper
+        title="Attendance Tracking"
+        subtitle={canManageAttendance ? "Track staff attendance and work hours" : "View your attendance records"}
+        actions={pageActions}
+      >
+        {/* Quick Clock Actions */}
         {canManageAttendance && (
-          <Dialog open={isNewAttendanceOpen} onOpenChange={setIsNewAttendanceOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Record
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Attendance Record</DialogTitle>
-              </DialogHeader>
-
-              <form onSubmit={handleCreateAttendance} className="space-y-4">
-                <div>
-                  <Label htmlFor="staff">Staff Member *</Label>
-                  <Select
-                    value={newAttendance.staff_user_id}
-                    onValueChange={(value) => setNewAttendance(prev => ({ ...prev, staff_user_id: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select staff member" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {staffUsers.map((staff) => (
-                        <SelectItem key={staff.id} value={staff.id}>
-                          {staff.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="date">Date *</Label>
-                  <Input
-                    type="date"
-                    value={newAttendance.date}
-                    onChange={(e) => setNewAttendance(prev => ({ ...prev, date: e.target.value }))}
-                    className="touch-feedback text-base"
-                    style={{ fontSize: '16px' }}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="clock_in">Clock In</Label>
-                    <Input
-                      type="time"
-                      value={newAttendance.clock_in}
-                      onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_in: e.target.value }))}
-                      className="touch-feedback text-base"
-                      style={{ fontSize: '16px' }}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="clock_out">Clock Out</Label>
-                    <Input
-                      type="time"
-                      value={newAttendance.clock_out}
-                      onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_out: e.target.value }))}
-                      className="touch-feedback text-base"
-                      style={{ fontSize: '16px' }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="break_duration">Break Duration (minutes)</Label>
-                  <Input
-                    type="number"
-                    value={newAttendance.break_duration}
-                    onChange={(e) => setNewAttendance(prev => ({ ...prev, break_duration: parseInt(e.target.value) || 0 }))}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsNewAttendanceOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Record'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
-      </div>
-
-      {/* Quick Clock Actions */}
-      {canManageAttendance && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Clock Actions - Today</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="donezo-section" style={{ marginBottom: '24px' }}>
+            <div className="donezo-section-header">
+              <h3 className="donezo-section-title">Quick Clock Actions - Today</h3>
+            </div>
+            <div className="donezo-quick-clock-grid">
               {staffUsers.slice(0, 8).map((staff) => {
                 const todayRecord = getTodayAttendance(staff.id);
                 const isCheckedIn = todayRecord && todayRecord.clock_in && !todayRecord.clock_out;
                 const isCheckedOut = todayRecord && todayRecord.clock_out;
 
                 return (
-                  <Card key={staff.id} className="p-4">
+                  <div key={staff.id} className="donezo-quick-clock-card">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
@@ -437,85 +343,80 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
 
                       <div className="flex gap-2">
                         {!isCheckedIn && !isCheckedOut && (
-                          <Button
+                          <button
                             onClick={() => handleClockAction(staff.id, 'in')}
-                            className="flex-1 touch-feedback min-h-[48px] text-base md:text-sm font-medium bg-emerald-600 hover:bg-emerald-700"
-                            style={{ fontSize: '16px' }}
+                            className="donezo-header-button"
+                            style={{ flex: 1, background: 'var(--primary-green)' }}
                           >
-                            🟢 Clock In
-                          </Button>
+                            Clock In
+                          </button>
                         )}
 
                         {isCheckedIn && (
-                          <Button
-                            variant="outline"
+                          <button
                             onClick={() => handleClockAction(staff.id, 'out')}
-                            className="flex-1 touch-feedback min-h-[48px] text-base md:text-sm font-medium border-red-300 text-red-600 hover:bg-red-50"
-                            style={{ fontSize: '16px' }}
+                            className="donezo-header-button secondary"
+                            style={{ flex: 1, color: '#ef4444', borderColor: '#ef4444' }}
                           >
-                            🔴 Clock Out
-                          </Button>
+                            Clock Out
+                          </button>
                         )}
 
                         {isCheckedOut && (
-                          <Badge variant="secondary" className="flex-1 justify-center">
+                          <span className="donezo-dentist-badge inactive" style={{ flex: 1, textAlign: 'center' }}>
                             Complete
-                          </Badge>
+                          </span>
                         )}
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Records</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <div>
-              <Label htmlFor="date">Date</Label>
-              <Input
+        {/* Filters */}
+        <div className="donezo-section" style={{ marginBottom: '24px' }}>
+          <div className="appointments-filter-bar">
+            <div className="donezo-form-field">
+              <label htmlFor="date">Date</label>
+              <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
+                className="donezo-input"
               />
             </div>
 
             {canManageAttendance && (
-              <div>
-                <Label htmlFor="staff">Staff Member</Label>
-                <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="All staff" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Staff</SelectItem>
-                    {staffUsers.map((staff) => (
-                      <SelectItem key={staff.id} value={staff.id}>
-                        {staff.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="donezo-form-field">
+                <label htmlFor="staff">Staff Member</label>
+                <select value={selectedStaff} onChange={e => setSelectedStaff(e.target.value)} className="donezo-select" style={{ width: '200px' }}>
+                  <option value="">All Staff</option>
+                  {staffUsers.map((staff) => (
+                    <option key={staff.id} value={staff.id}>
+                      {staff.full_name}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
 
             <div className="flex items-end">
-              <Button variant="outline" onClick={fetchAttendanceRecords}>
+              <button className="donezo-header-button secondary" onClick={fetchAttendanceRecords}>
                 <Search className="mr-2 h-4 w-4" />
                 Search
-              </Button>
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Attendance Table */}
+        {/* Attendance Table */}
+        <div className="donezo-section">
+          <div className="donezo-section-header">
+            <h3 className="donezo-section-title">Attendance Records</h3>
+          </div>
           {loading ? (
             <div className="text-center py-8">Loading attendance records...</div>
           ) : attendanceRecords.length === 0 ? (
@@ -524,30 +425,30 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Staff Member</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Clock In</TableHead>
-                    <TableHead>Clock Out</TableHead>
-                    <TableHead>Break (min)</TableHead>
-                    <TableHead>Total Hours</TableHead>
-                    <TableHead>Hourly Rate</TableHead>
-                    <TableHead>Daily Pay</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <table className="donezo-table">
+                <thead>
+                  <tr>
+                    <th>Staff Member</th>
+                    <th>Date</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Break (min)</th>
+                    <th>Total Hours</th>
+                    <th>Hourly Rate</th>
+                    <th>Daily Pay</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {attendanceRecords.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell className="font-medium">
+                    <tr key={record.id}>
+                      <td className="font-medium">
                         {record.staff_name}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {new Date(record.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {record.clock_in ? (
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
@@ -556,8 +457,8 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {record.clock_out ? (
                           <div className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
@@ -566,9 +467,9 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
-                      </TableCell>
-                      <TableCell>{record.break_duration}</TableCell>
-                      <TableCell>
+                      </td>
+                      <td>{record.break_duration}</td>
+                      <td>
                         {record.total_hours ? (
                           <span className="font-medium">
                             {record.total_hours.toFixed(2)}h
@@ -576,41 +477,118 @@ export function ProductionAttendancePage({ currentUser }: AttendancePageProps) {
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {record.staff_hourly_rate ? (
                           <span>₱{record.staff_hourly_rate}/hr</span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {record.daily_pay ? (
-                          <span className="font-medium text-green-600">
+                          <span className="font-medium" style={{ color: 'var(--primary-green)' }}>
                             ₱{record.daily_pay.toFixed(2)}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </td>
+                      <td>
                         {record.clock_in && record.clock_out ? (
-                          <Badge variant="default">Complete</Badge>
+                          <span className="donezo-dentist-badge active">Complete</span>
                         ) : record.clock_in ? (
-                          <Badge variant="secondary">In Progress</Badge>
+                          <span className="donezo-dentist-badge on-leave">In Progress</span>
                         ) : (
-                          <Badge variant="outline">Not Started</Badge>
+                          <span className="donezo-dentist-badge inactive">Not Started</span>
                         )}
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        {isNewAttendanceOpen && (
+          <div className="donezo-dialog-overlay" onClick={() => setIsNewAttendanceOpen(false)}>
+            <div className="donezo-dialog-content" onClick={e => e.stopPropagation()}>
+              <div className="donezo-dialog-header">
+                <h3 className="donezo-dialog-title">Add Attendance Record</h3>
+              </div>
+              <form onSubmit={handleCreateAttendance} className="space-y-4">
+                <div className="donezo-form-field">
+                  <label htmlFor="staff">Staff Member *</label>
+                  <select
+                    value={newAttendance.staff_user_id}
+                    onChange={(e) => setNewAttendance(prev => ({ ...prev, staff_user_id: e.target.value }))}
+                    className="donezo-select"
+                  >
+                    <option value="">Select staff member</option>
+                    {staffUsers.map((staff) => (
+                      <option key={staff.id} value={staff.id}>
+                        {staff.full_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="donezo-form-field">
+                  <label htmlFor="date">Date *</label>
+                  <input
+                    type="date"
+                    value={newAttendance.date}
+                    onChange={(e) => setNewAttendance(prev => ({ ...prev, date: e.target.value }))}
+                    className="donezo-input"
+                    required
+                  />
+                </div>
+
+                <div className="donezo-form-grid">
+                  <div className="donezo-form-field">
+                    <label htmlFor="clock_in">Clock In</label>
+                    <input
+                      type="time"
+                      value={newAttendance.clock_in}
+                      onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_in: e.target.value }))}
+                      className="donezo-input"
+                    />
+                  </div>
+                  <div className="donezo-form-field">
+                    <label htmlFor="clock_out">Clock Out</label>
+                    <input
+                      type="time"
+                      value={newAttendance.clock_out}
+                      onChange={(e) => setNewAttendance(prev => ({ ...prev, clock_out: e.target.value }))}
+                      className="donezo-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="donezo-form-field">
+                  <label htmlFor="break_duration">Break Duration (minutes)</label>
+                  <input
+                    type="number"
+                    value={newAttendance.break_duration}
+                    onChange={(e) => setNewAttendance(prev => ({ ...prev, break_duration: parseInt(e.target.value) || 0 }))}
+                    className="donezo-input"
+                  />
+                </div>
+
+                <div className="donezo-dialog-footer">
+                  <button type="button" className="donezo-header-button secondary" onClick={() => setIsNewAttendanceOpen(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={loading} className="donezo-header-button">
+                    {loading ? 'Creating...' : 'Create Record'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </PageWrapper>
     );
   } catch (error: any) {
     console.error('=== ProductionAttendancePage RENDER ERROR ===', error);

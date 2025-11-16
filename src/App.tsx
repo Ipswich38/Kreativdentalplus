@@ -3,6 +3,7 @@ import { LoginPage } from "./components/LoginPage";
 import { MainLayout } from "./components/MainLayout";
 import { Toaster } from "sonner@2.0.3";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function AppContent() {
   const { currentUser, isLoading, logout } = useAuth();
@@ -20,10 +21,10 @@ function AppContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-body">Loading...</p>
         </div>
       </div>
     );
@@ -43,8 +44,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
